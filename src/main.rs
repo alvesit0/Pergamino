@@ -38,7 +38,7 @@ fn main() -> eframe::Result {
         Box::new(|cc| {
             // This gives us image support:
             egui_extras::install_image_loaders(&cc.egui_ctx);
-
+			cc.egui_ctx.set_pixels_per_point(1.25);
             // esto es equivalente a poner "si cc.storage no es nulo (aunque los nulos no existen
             // en rust), crea una variable 'storage' con ese contenido y ejecuta el bloque"
             // if let Some(storage) = cc.storage {
@@ -90,7 +90,6 @@ impl Default for PergaminoApp {
 
 impl eframe::App for PergaminoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        ctx.set_pixels_per_point(1.25);
 
         let potential_new_state = match &mut self.state {
             AppState::Welcome => {
@@ -102,8 +101,8 @@ impl eframe::App for PergaminoApp {
                 ui::create_project::show(ctx, temp_name)
             },
 
-            AppState::Editor { project_name } => {
-                ui::editor::show(ctx, project_name)
+            AppState::Editor { project_name, snarl } => {
+                ui::editor::show(ctx, project_name, snarl)
             }
 
         };
