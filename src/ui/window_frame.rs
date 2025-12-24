@@ -90,12 +90,12 @@ fn render_title_bar(ui: &mut egui::Ui, rect: egui::Rect, config: &WindowConfig) 
 		ui.visuals().widgets.noninteractive.bg_stroke,
 	);
 
-	if title_bar_response.double_clicked() && config.maximizable {
+	if title_bar_response.double_clicked_by(egui::PointerButton::Primary) && config.maximizable {
 		let is_maximized = ui.input(|i| i.viewport().maximized.unwrap_or(false));
 		ui.ctx().send_viewport_cmd(ViewportCommand::Maximized(!is_maximized));
 	}
 
-	if title_bar_response.drag_started() {
+	if title_bar_response.drag_started() && ui.input(|i| i.pointer.button_down(egui::PointerButton::Primary)) {
 		ui.ctx().send_viewport_cmd(ViewportCommand::StartDrag);
 	}
 
@@ -145,9 +145,15 @@ fn render_resize_grip(ui: &mut egui::Ui, app_rect: egui::Rect) {
 
 	if grip_response.dragged() {
 		if let Some(delta) = grip_response.drag_delta().try_into().ok() {
-			 ui.ctx().send_viewport_cmd(ViewportCommand::InnerSize(
-				ui.ctx().input(|i| i.viewport().inner_rect).unwrap().size() + delta
-			 ));
+			if let Some(inner_rect) = ui.ctx().input(|i| i.viewport().inner_rect) {
+				let current_size = inner_rect.size();
+
+				let min_size = vec2(300.0, 200.0);
+
+				let new_size = (current_size + delta).max(min_size);
+
+				ui.ctx().send_viewport_cmd(ViewportCommand::InnerSize(new_size));
+			}
 		}
 	}
 }

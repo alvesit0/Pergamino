@@ -2,16 +2,28 @@ use eframe::egui;
 use super::{AppState, window_frame};
 
 pub fn start(ctx: &egui::Context) {
-    ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize([1024.0, 720.0].into()));
-    // ctx.send_viewport_cmd(egui::ViewportCommand::OuterPosition([200.0, 200.0].into()));
-	egui::ViewportCommand::center_on_screen(ctx).unwrap();
+	let width = 1024.0;
+	let height = 720.0;
+	
+	ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize([width, height].into()));
+
+	let monitor_size = ctx.input(|i| i.viewport().monitor_size);
+
+	if let Some(monitor_size) = monitor_size {
+		let x = (monitor_size.x - width) / 2.0;
+		let y = (monitor_size.y - height) / 2.0;
+
+		ctx.send_viewport_cmd(egui::ViewportCommand::OuterPosition([x, y].into()));
+	} else {
+		println!("Monitor change cannot be detected");
+	}
 }
 
 pub fn show(ctx: &egui::Context, project_name: &str) -> Option<AppState> {
     let mut _next_state = None;
 
     let config = window_frame::WindowConfig {
-        title: format!("Proyecto: {}", project_name),
+        title: format!("Project: {}", project_name),
         resizable: true,
         maximizable: true,
         closeable: true,

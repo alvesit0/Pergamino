@@ -4,7 +4,6 @@ use super::{AppState, window_frame};
 pub fn start(ctx: &egui::Context) {
     // ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize([400.0, 240.0].into()));
     ctx.send_viewport_cmd(egui::ViewportCommand::Maximized(false));
-    egui::ViewportCommand::center_on_screen(ctx);
 }
 
 pub fn show(ctx: &egui::Context) -> Option<AppState> {
@@ -22,12 +21,12 @@ pub fn show(ctx: &egui::Context) -> Option<AppState> {
             ui.add_space(30.0);
             ui.heading("📜 Pergamino");
             ui.add_space(30.0);
-            
-            if ui.add(egui::Button::new("Abrir Último Proyecto").min_size([200.0, 40.0].into())).clicked() {
+
+            if ui.add(egui::Button::new("Open Last Project").min_size([200.0, 40.0].into())).clicked() {
                 next_state = Some(AppState::NamingProject { temp_name: String::new() });
             }
 
-            if ui.add(egui::Button::new("Crear Nuevo Proyecto").min_size([200.0, 40.0].into())).clicked() {
+            if ui.add(egui::Button::new("Create New Project").min_size([200.0, 40.0].into())).clicked() {
                 next_state = Some(AppState::NamingProject { temp_name: String::new() });
             }
         });
