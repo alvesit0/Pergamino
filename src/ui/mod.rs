@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 pub mod welcome;
 pub mod create_project;
 pub mod editor;
+pub mod window_frame;
 
 #[derive(Deserialize, Serialize, PartialEq, Clone)]
 pub enum AppState {

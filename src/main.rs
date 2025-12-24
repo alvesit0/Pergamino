@@ -18,9 +18,10 @@ fn main() -> eframe::Result {
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([400.0, 240.0])
-            .with_resizable(false)
-            .with_maximize_button(false),
+            .with_inner_size([480.0, 320.0])
+            .with_decorations(false)
+            .with_transparent(true)
+            .with_resizable(true),
         centered: true,
         ..Default::default() // esto es el equivalente a hacer "...defaultOptions" en typescript
     };
@@ -69,7 +70,6 @@ fn main() -> eframe::Result {
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
-
 struct PergaminoApp {
     #[serde(skip)]
     state: AppState,
