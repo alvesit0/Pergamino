@@ -11,11 +11,11 @@ pub struct NumberNode {
 
 impl PergaminoNodeBehavior for NumberNode {
 	fn title(&self) -> String {
-		todo!()
+		"Number".to_owned()
 	}
 
 	fn inputs(&self) -> usize {
-		todo!()
+		1
 	}
 
 	fn show_input(
@@ -23,29 +23,48 @@ impl PergaminoNodeBehavior for NumberNode {
 			pin: &egui_snarl::InPin,
 			ui: &mut egui::Ui,
 			) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(Color32::WHITE)
+		
+		ui.label("Number input");
+
+		if !pin.remotes.is_empty() {
+			PinInfo::triangle().with_fill(Color32::BLUE)
+		} else {
+			PinInfo::circle().with_fill(Color32::BLUE)
+		}
 	}
 
 	fn outputs(&self) -> usize {
-		todo!()
+		1
 	}
 
 	fn show_output(
 			&mut self,
-			pin: &egui_snarl::OutPin,
+			_pin: &egui_snarl::OutPin,
 			ui: &mut egui::Ui,
 		) -> egui_snarl::ui::PinInfo {
+		
+		ui.add(egui::DragValue::new(&mut self.value).speed(0.1));
 		PinInfo::circle().with_fill(Color32::RED)
 	}
+
+	// fn show_node_menu(
+	// 		&mut self,
+	// 		_node: egui_snarl::NodeId,
+	// 		_inputs: &[egui_snarl::InPin],
+	// 		_outputs: &[egui_snarl::OutPin],
+	// 		_ui: &mut egui::Ui,
+	// 	) -> NodeAction {
+	// 	NodeAction::None
+	// }
 	
 	fn show_body(
 		&mut self,
-		node_id:egui_snarl::NodeId,
-		inputs: &[egui_snarl::InPin],
-		outputs: &[egui_snarl::OutPin],
-		ui: &mut egui::Ui,
-		candidates: &[(NodeId, String)]
+		_node_id:egui_snarl::NodeId,
+		_inputs: &[egui_snarl::InPin],
+		_outputs: &[egui_snarl::OutPin],
+		_ui: &mut egui::Ui,
+		_candidates: &[(NodeId, String)]
 	) -> NodeAction {
-		todo!()
+		NodeAction::None
 	}
 }

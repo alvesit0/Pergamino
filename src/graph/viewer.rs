@@ -79,10 +79,11 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
             snarl.insert_node(pos, PergaminoNode::Add(AddNode {}));
             ui.close();
         }
+		ui.separator();
         if ui.button("Complex").clicked() {
             snarl.insert_node(pos, PergaminoNode::Complex(ComplexNode {
-                my_number: 10.0,
-                my_text: "Hello".to_string(),
+                num: 10.0,
+                text: "Hello".to_string(),
                 selected_target: None,
             }));
             ui.close();
@@ -91,16 +92,18 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 
 	fn show_node_menu(
 			&mut self,
-			node: egui_snarl::NodeId,
-			_inputs: &[egui_snarl::InPin],
-			_outputs: &[egui_snarl::OutPin],
+			node_id: egui_snarl::NodeId,
+			inputs: &[egui_snarl::InPin],
+			outputs: &[egui_snarl::OutPin],
 			ui: &mut egui::Ui,
 			snarl: &mut egui_snarl::Snarl<PergaminoNode>,
 		) {
-		if ui.button("Remove node").clicked() {
-			snarl.remove_node(node);
-			ui.close();
-		}
+		let action = {
+			let node = &mut snarl[node_id];
+			node.show_node_menu(node_id, inputs, outputs, ui)
+		};
+
+		Self::process_action(snarl, action, node_id);
 	}
 
 	fn has_body(&mut self, node: &PergaminoNode) -> bool {
@@ -125,6 +128,16 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 			node.show_body(node_id, inputs, outputs, ui, &candidates)
 		};
 
+		Self::process_action(snarl, action, node_id);
+	}
+}
+
+impl PergaminoViewer {
+	fn process_action(
+		snarl: &mut Snarl<PergaminoNode>,
+		action: NodeAction,
+		node_id: egui_snarl::NodeId
+	) {
 		match action {
 			NodeAction::RemoveSelf => {
 				snarl.remove_node(node_id);

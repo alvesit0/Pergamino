@@ -1,9 +1,10 @@
-use egui_snarl::{NodeId, Snarl};
+use egui_snarl::{NodeId};
 use enum_dispatch::enum_dispatch;
 use crate::graph::node::PergaminoNode;
 
 use crate::graph::nodes::{add::AddNode, number::NumberNode, complex::ComplexNode};
 
+#[allow(dead_code)]
 pub enum NodeAction {
 	None,
 	Disconnect(egui_snarl::OutPin, egui_snarl::InPin),
@@ -30,20 +31,21 @@ pub trait PergaminoNodeBehavior {
 	) -> egui_snarl::ui::PinInfo;
 
 	fn has_node_menu(&self) -> bool { true }
-	fn has_body(&self) -> bool { false }
+	fn has_body(&self) -> bool { true }
 
 	fn show_node_menu(
 			&mut self,
-			node: egui_snarl::NodeId,
+			_node: egui_snarl::NodeId,
 			_inputs: &[egui_snarl::InPin],
 			_outputs: &[egui_snarl::OutPin],
 			ui: &mut egui::Ui,
-			snarl: &mut egui_snarl::Snarl<PergaminoNode>,
-		) {
+		) -> NodeAction {
 		if ui.button("Remove node").clicked() {
-			snarl.remove_node(node);
 			ui.close();
+			return NodeAction::RemoveSelf
 		}
+
+		NodeAction::None
 	}
 
 	fn show_body(

@@ -10,41 +10,55 @@ pub struct AddNode {
 
 impl PergaminoNodeBehavior for AddNode {
 	fn title(&self) -> String {
-		todo!()
+		"Add".to_owned()
 	}
 
 	fn inputs(&self) -> usize {
-		todo!()
+		2
 	}
 
 	fn show_input(
 			&mut self,
-			pin: &egui_snarl::InPin,
+			_pin: &egui_snarl::InPin,
 			ui: &mut egui::Ui,
 			) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(Color32::WHITE)
+		
+		ui.label("Add in");
+		PinInfo::circle().with_fill(Color32::BLUE)
 	}
 
 	fn outputs(&self) -> usize {
-		todo!()
+		1
 	}
 
 	fn show_output(
 			&mut self,
-			pin: &egui_snarl::OutPin,
+			_pin: &egui_snarl::OutPin,
 			ui: &mut egui::Ui,
 		) -> egui_snarl::ui::PinInfo {
+		
+		ui.label("Out");
 		PinInfo::circle().with_fill(Color32::RED)
 	}
 
+	// fn show_node_menu(
+	// 		&mut self,
+	// 		_node: egui_snarl::NodeId,
+	// 		_inputs: &[egui_snarl::InPin],
+	// 		_outputs: &[egui_snarl::OutPin],
+	// 		_ui: &mut egui::Ui,
+	// 	) -> NodeAction {
+	// 	NodeAction::None
+	// }
+	
 	fn show_body(
 		&mut self,
-		node_id:egui_snarl::NodeId,
-		inputs: &[egui_snarl::InPin],
-		outputs: &[egui_snarl::OutPin],
-		ui: &mut egui::Ui,
-		candidates: &[(NodeId, String)]
+		_node_id:egui_snarl::NodeId,
+		_inputs: &[egui_snarl::InPin],
+		_outputs: &[egui_snarl::OutPin],
+		_ui: &mut egui::Ui,
+		_candidates: &[(NodeId, String)]
 	) -> NodeAction {
-		todo!()
+		NodeAction::None
 	}
 }
