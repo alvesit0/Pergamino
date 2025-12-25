@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use egui_snarl::Snarl;
-use crate::ui::editor::MyNode;
+
+use crate::graph::node::PergaminoNode;
 
 pub mod welcome;
 pub mod create_project;
@@ -13,7 +14,7 @@ pub enum AppState {
     NamingProject { temp_name: String },
     Editor { 
 		project_name: String,
-		snarl: Snarl<MyNode>
+		snarl: Snarl<PergaminoNode>
 	}
 }
 
