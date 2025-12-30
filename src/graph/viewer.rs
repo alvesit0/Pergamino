@@ -1,7 +1,7 @@
 use egui::Frame;
-use egui_snarl::{Snarl, ui::{SnarlViewer}};
+use egui_snarl::{Snarl, ui::{AnyPins, SnarlViewer}};
 
-use crate::{graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}, nodes::{add::AddNode, complex::ComplexNode, number::NumberNode}}, ui::theme::PergaminoTheme};
+use crate::{graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}}, ui::theme::PergaminoTheme};
 
 pub struct PergaminoViewer {
 	pub theme: PergaminoTheme,
@@ -50,7 +50,21 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		to: &egui_snarl::InPin, 
 		snarl: &mut egui_snarl::Snarl<PergaminoNode>) {
 
-		snarl.connect(from.id, to.id);
+		let from_type = snarl[from.id.node].output_type(from.id.output);
+		let to_type = snarl[to.id.node].input_type(to.id.input);
+
+		match (from_type, to_type) {
+			(Some(out_t), Some(in_t)) => {
+				if out_t.is_compatible_with(&in_t) {
+					snarl.connect(from.id, to.id);
+				} else {
+					println!("Incompatible connection!!");
+				}
+			},
+			_ => {
+				// if any of the node types returns None somehow
+			}
+		}
 	}
 
 	fn disconnect(
@@ -70,6 +84,10 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		node.has_node_menu()
 	}
 
+	fn has_dropped_wire_menu(&mut self, _src_pins: egui_snarl::ui::AnyPins, _snarl: &mut Snarl<PergaminoNode>) -> bool {
+		true
+	}
+
 	fn show_graph_menu(
 		&mut self, pos: 
 		egui::Pos2, 
@@ -77,23 +95,83 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		snarl: &mut egui_snarl::Snarl<PergaminoNode>) {
 		
 		ui.label("Add node");
-		if ui.button("Number").clicked() {
-            snarl.insert_node(pos, PergaminoNode::Number(NumberNode { value: 0.0 }));
-            ui.close();
-        }
-        if ui.button("Add").clicked() {
-            snarl.insert_node(pos, PergaminoNode::Add(AddNode {}));
-            ui.close();
-        }
 		ui.separator();
-        if ui.button("Complex").clicked() {
-            snarl.insert_node(pos, PergaminoNode::Complex(ComplexNode {
-                num: 10.0,
-                text: "Hello".to_string(),
-                selected_target: None,
-            }));
-            ui.close();
-        }
+
+		for node in PergaminoNode::prototypes() {
+			if ui.button(node.title()).clicked() {
+				snarl.insert_node(pos, node);
+				ui.close();
+			}
+		}
+	}
+
+	fn show_dropped_wire_menu(
+			&mut self,
+			pos: egui::Pos2,
+			ui: &mut egui::Ui,
+			src_pins: egui_snarl::ui::AnyPins,
+			snarl: &mut Snarl<PergaminoNode>,
+		) {
+		ui.label("Connect to...");
+		ui.separator();
+
+		let (src_out_id, src_in_id, src_type) = match src_pins {
+			AnyPins::Out(pins) => {
+				if let Some(&pin_id) = pins.first() {
+					let node = &snarl[pin_id.node];
+					let data_type = node.output_type(pin_id.output);
+
+					(Some(pin_id), None, data_type)
+				} else {
+					return;
+				}
+			},
+			AnyPins::In(pins) => {
+				if let Some(&pin_id) = pins.first() {
+					let node = &snarl[pin_id.node];
+					let data_type = node.output_type(pin_id.input);
+
+					(None, Some(pin_id), data_type)
+				} else {
+					return;
+				}
+			}
+		};
+
+		let src_type = if let Some(t) = src_type { t } else { return };
+
+		for prototype in PergaminoNode::prototypes() {
+			// buscamos un pin compatible con el prototipo
+			let target_pin_index = if src_out_id.is_some() {
+				// si arrastro SALIDA, busco ENTRADA compatible en el nuevo nodo
+				(0..prototype.inputs()).find(|&i| {
+					prototype.input_type(i).map_or(false, |t| src_type.is_compatible_with(&t))
+				})
+			} else {
+				// si arrastro ENTRADA, busco SALIDA compatible en el nuevo nodo
+				(0..prototype.outputs()).find(|&i| {
+					prototype.output_type(i).map_or(false, |t| src_type.is_compatible_with(&t))
+				})
+			};
+
+			// si encontramos compatibilidad, pintamos el botón
+			if let Some(idx) = target_pin_index {
+				if ui.button(prototype.title()).clicked() {
+					let new_node_id = snarl.insert_node(pos, prototype);
+
+					if let Some(from_id) = src_out_id {
+						let to_id = egui_snarl::InPinId { node: new_node_id, input: idx };
+						snarl.connect(from_id, to_id);
+					}
+					else if let Some(to_id) = src_in_id {
+						let from_id = egui_snarl::OutPinId { node: new_node_id, output: idx };
+						snarl.connect(from_id, to_id);
+					}
+
+					ui.close();
+				}
+			}
+		}
 	}
 
 	fn show_node_menu(

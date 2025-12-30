@@ -4,6 +4,7 @@ use enum_dispatch::enum_dispatch;
 use crate::graph::node::PergaminoNode;
 
 use crate::graph::nodes::{add::AddNode, number::NumberNode, complex::ComplexNode};
+use crate::graph::types::DataType;
 
 #[allow(dead_code)]
 pub enum NodeAction {
@@ -13,7 +14,7 @@ pub enum NodeAction {
 	RemoveSelf
 }
 
-#[enum_dispatch(PergaminoNode)]
+#[enum_dispatch]
 pub trait PergaminoNodeBehavior {
 	fn title(&self) -> String;
 
@@ -60,5 +61,13 @@ pub trait PergaminoNodeBehavior {
 
 	fn accent_color(&self) -> Color32 {
 		Color32::from_gray(100)
+	}
+
+	fn input_type(&self, _index: usize) -> Option<DataType> {
+		Some(DataType::Any)
+	}
+
+	fn output_type(&self, _index: usize) -> Option<DataType> {
+		Some(DataType::Any)
 	}
 }

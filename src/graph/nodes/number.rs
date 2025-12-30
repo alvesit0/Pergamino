@@ -2,12 +2,20 @@ use egui::Color32;
 use egui_snarl::{NodeId, ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::ui::theme::COLOR_NUMBER;
+use crate::graph::types::DataType;
 use crate::graph::node_behavior::{NodeAction, PergaminoNodeBehavior};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct NumberNode {
 	pub value: f64,
+}
+
+impl Default for NumberNode {
+	fn default() -> Self {
+		Self {
+			value: 10.0
+		}
+	}
 }
 
 impl PergaminoNodeBehavior for NumberNode {
@@ -30,7 +38,7 @@ impl PergaminoNodeBehavior for NumberNode {
 		if !pin.remotes.is_empty() {
 			PinInfo::triangle().with_fill(Color32::BLUE)
 		} else {
-			PinInfo::circle().with_fill(Color32::BLUE)
+			PinInfo::circle().with_fill(DataType::Number.color())
 		}
 	}
 
@@ -46,7 +54,7 @@ impl PergaminoNodeBehavior for NumberNode {
 		
 		ui.add(egui::DragValue::new(&mut self.value).speed(0.1));
 
-		PinInfo::circle().with_fill(COLOR_NUMBER)
+		PinInfo::circle().with_fill(DataType::Number.color())
 	}
 
 	// fn show_node_menu(
@@ -72,5 +80,13 @@ impl PergaminoNodeBehavior for NumberNode {
 
 	fn accent_color(&self) -> Color32 {
 		Color32::from_rgb(100, 200, 255)
+	}
+
+	fn input_type(&self, _index: usize) -> Option<DataType> {
+		Some(DataType::Number)
+	}
+
+	fn output_type(&self, _index: usize) -> Option<DataType> {
+		Some(DataType::Number)
 	}
 }

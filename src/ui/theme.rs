@@ -1,9 +1,6 @@
 use egui::{Color32, CornerRadius, Frame, Margin, Shadow, Stroke, Vec2};
 use egui_snarl::ui::{BackgroundPattern, Grid, NodeLayout, PinPlacement, SnarlStyle, WireStyle};
 
-pub const COLOR_NUMBER: Color32 = Color32::from_rgb(100, 200, 255);
-pub const COLOR_STRING: Color32 = Color32::from_rgb(255, 150, 100);
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PergaminoTheme {
 	// pub editor_bg_color: Color32,

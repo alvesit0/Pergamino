@@ -11,6 +11,16 @@ pub struct ComplexNode {
 	pub selected_target: Option<egui_snarl::NodeId>
 }
 
+impl Default for ComplexNode {
+	fn default() -> Self {
+		Self {
+			num: 10.0,
+			text: "".to_string(),
+			selected_target: None
+		}
+	}
+}
+
 impl PergaminoNodeBehavior for ComplexNode {
 	fn title(&self) -> String {
 		"Complex".to_owned()
