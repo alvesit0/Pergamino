@@ -1,6 +1,6 @@
 use eframe::egui;
 use egui_snarl::ui::{SnarlStyle};
-use crate::graph::{node::PergaminoNode, viewer::PergaminoViewer};
+use crate::{graph::{node::PergaminoNode, viewer::PergaminoViewer}, ui::theme::PergaminoTheme};
 
 use super::{AppState, window_frame};
 
@@ -46,10 +46,15 @@ pub fn show(ctx: &egui::Context, project_name: &str, snarl: &mut egui_snarl::Sna
             if ui.button("Redo").clicked() { }
         });
 
-        ui.separator();
+        // ui.separator();
+		ui.add_space(4.0);
 
-		let mut viewer = PergaminoViewer;
-		let style = SnarlStyle::new();
+		let theme = PergaminoTheme::default();
+
+		let mut style = SnarlStyle::new();
+		theme.apply_to_snarl_style(&mut style);
+
+		let mut viewer = PergaminoViewer { theme };
 		let snarl_id = egui::Id::new("pergamino_graph_id");
 
 		snarl.show(&mut viewer, &style, snarl_id, ui);

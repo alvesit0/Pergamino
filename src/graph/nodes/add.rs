@@ -2,7 +2,7 @@ use egui::Color32;
 use egui_snarl::{NodeId, ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::node_behavior::{NodeAction, PergaminoNodeBehavior};
+use crate::{graph::node_behavior::{NodeAction, PergaminoNodeBehavior}, ui::theme::COLOR_STRING};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct AddNode {
@@ -24,7 +24,7 @@ impl PergaminoNodeBehavior for AddNode {
 			) -> egui_snarl::ui::PinInfo {
 		
 		ui.label("Add in");
-		PinInfo::circle().with_fill(Color32::BLUE)
+		PinInfo::circle().with_fill(COLOR_STRING)
 	}
 
 	fn outputs(&self) -> usize {
@@ -60,5 +60,9 @@ impl PergaminoNodeBehavior for AddNode {
 		_candidates: &[(NodeId, String)]
 	) -> NodeAction {
 		NodeAction::None
+	}
+
+	fn accent_color(&self) -> Color32 {
+		Color32::from_rgb(255, 200, 100)
 	}
 }

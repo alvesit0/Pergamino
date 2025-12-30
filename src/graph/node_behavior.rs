@@ -1,3 +1,4 @@
+use egui::Color32;
 use egui_snarl::{NodeId};
 use enum_dispatch::enum_dispatch;
 use crate::graph::node::PergaminoNode;
@@ -56,4 +57,8 @@ pub trait PergaminoNodeBehavior {
 		ui: &mut egui::Ui,
 		candidates: &[(NodeId, String)]
 	) -> NodeAction;
+
+	fn accent_color(&self) -> Color32 {
+		Color32::from_gray(100)
+	}
 }

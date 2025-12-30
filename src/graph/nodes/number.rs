@@ -2,6 +2,7 @@ use egui::Color32;
 use egui_snarl::{NodeId, ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
+use crate::ui::theme::COLOR_NUMBER;
 use crate::graph::node_behavior::{NodeAction, PergaminoNodeBehavior};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -44,7 +45,8 @@ impl PergaminoNodeBehavior for NumberNode {
 		) -> egui_snarl::ui::PinInfo {
 		
 		ui.add(egui::DragValue::new(&mut self.value).speed(0.1));
-		PinInfo::circle().with_fill(Color32::RED)
+
+		PinInfo::circle().with_fill(COLOR_NUMBER)
 	}
 
 	// fn show_node_menu(
@@ -66,5 +68,9 @@ impl PergaminoNodeBehavior for NumberNode {
 		_candidates: &[(NodeId, String)]
 	) -> NodeAction {
 		NodeAction::None
+	}
+
+	fn accent_color(&self) -> Color32 {
+		Color32::from_rgb(100, 200, 255)
 	}
 }

@@ -1,8 +1,11 @@
+use egui::Frame;
 use egui_snarl::{Snarl, ui::{SnarlViewer}};
 
-use crate::graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}, nodes::{add::AddNode, complex::ComplexNode, number::NumberNode}};
+use crate::{graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}, nodes::{add::AddNode, complex::ComplexNode, number::NumberNode}}, ui::theme::PergaminoTheme};
 
-pub struct PergaminoViewer;
+pub struct PergaminoViewer {
+	pub theme: PergaminoTheme,
+}
 
 impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 	fn title(&mut self, node: &PergaminoNode) -> String {
@@ -19,6 +22,8 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		ui: &mut egui::Ui,
 		snarl: &mut egui_snarl::Snarl<PergaminoNode>,
 		) -> impl egui_snarl::ui::SnarlPin + 'static {
+		self.apply_node_base_style(ui);
+
 		let node = &mut snarl[pin.id.node];
 		node.show_input(pin, ui)
 	}
@@ -33,6 +38,8 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		ui: &mut egui::Ui,
 		snarl: &mut egui_snarl::Snarl<PergaminoNode>,
 	) -> impl egui_snarl::ui::SnarlPin + 'static {
+		self.apply_node_base_style(ui);
+
 		let node = &mut snarl[pin.id.node];
 		node.show_output(pin, ui) // cannot borrow `*snarl` as mutable more than once at a time
 	}
@@ -71,7 +78,6 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		
 		ui.label("Add node");
 		if ui.button("Number").clicked() {
-			
             snarl.insert_node(pos, PergaminoNode::Number(NumberNode { value: 0.0 }));
             ui.close();
         }
@@ -118,6 +124,8 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		ui: &mut egui::Ui,
 		snarl: &mut Snarl<PergaminoNode>,
 	) {
+		self.apply_node_base_style(ui);
+
 		let candidates: Vec<_> = snarl.node_ids()
 			.filter(|(id, _)| *id != node_id)
 			.map(|(id, _)| (id, format!("Node {:?}", id)))
@@ -130,9 +138,59 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 
 		Self::process_action(snarl, action, node_id);
 	}
+
+	fn show_header(
+			&mut self,
+			node_id: egui_snarl::NodeId,
+			_inputs: &[egui_snarl::InPin],
+			_outputs: &[egui_snarl::OutPin],
+			ui: &mut egui::Ui,
+			snarl: &mut Snarl<PergaminoNode>,
+		) {
+		self.apply_node_base_style(ui);
+		let node = &snarl[node_id];
+
+		ui.vertical_centered(|ui| {
+			ui.label(node.title());
+		});	
+	}
+
+	fn header_frame(
+	    &mut self,
+	    _default: Frame,
+	    node_id: egui_snarl::NodeId,
+	    _inputs: &[egui_snarl::InPin],
+	    _outputs: &[egui_snarl::OutPin],
+	    snarl: &Snarl<PergaminoNode>,
+	) -> Frame {
+		let node = &snarl[node_id];
+
+		let color = node.accent_color();
+
+		self.theme.header_frame(color)
+	}
+
+	fn node_frame(
+	    &mut self,
+	    _default: Frame,
+	    node_id: egui_snarl::NodeId,
+	    _inputs: &[egui_snarl::InPin],
+	    _outputs: &[egui_snarl::OutPin],
+	    snarl: &Snarl<PergaminoNode>,
+	) -> Frame {
+		let node = &snarl[node_id];
+
+		let color = node.accent_color();
+
+		self.theme.node_frame(color)
+	}
 }
 
 impl PergaminoViewer {
+	fn apply_node_base_style(&self, ui: &mut egui::Ui) {
+		ui.visuals_mut().override_text_color = Some(self.theme.node_text_color);
+	}
+
 	fn process_action(
 		snarl: &mut Snarl<PergaminoNode>,
 		action: NodeAction,

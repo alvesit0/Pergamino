@@ -7,6 +7,7 @@ pub mod welcome;
 pub mod create_project;
 pub mod editor;
 pub mod window_frame;
+pub mod theme;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub enum AppState {
