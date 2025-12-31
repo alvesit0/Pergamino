@@ -11,6 +11,7 @@ use crate::graph::nodes::{add::AddNode, complex::ComplexNode, number::NumberNode
 // 	Complex(ComplexNode),
 // }
 
+// TODO: learn how on earth do macros actually work
 macro_rules! define_node_enum {
 	(
 		$(#[$meta:meta])*

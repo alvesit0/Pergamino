@@ -1,6 +1,6 @@
 use eframe::egui;
 use egui_snarl::ui::{SnarlStyle};
-use crate::{graph::{node::PergaminoNode, viewer::PergaminoViewer}, ui::theme::PergaminoTheme};
+use crate::{commands::invoker::{CommandInvoker}, graph::{node::PergaminoNode, viewer::PergaminoViewer}, ui::theme::PergaminoTheme};
 
 use super::{AppState, window_frame};
 
@@ -22,7 +22,7 @@ pub fn start(ctx: &egui::Context) {
 	}
 }
 
-pub fn show(ctx: &egui::Context, project_name: &str, snarl: &mut egui_snarl::Snarl<PergaminoNode>) -> Option<AppState> {
+pub fn show(ctx: &egui::Context, project_name: &str, snarl: &mut egui_snarl::Snarl<PergaminoNode>, invoker: &mut CommandInvoker) -> Option<AppState> {
     let mut _next_state = None;
 
     let config = window_frame::WindowConfig {
@@ -37,13 +37,17 @@ pub fn show(ctx: &egui::Context, project_name: &str, snarl: &mut egui_snarl::Sna
             ui.menu_button("File", |io| {
                 if io.button("Save").clicked() { }
 
+				if io.button("Export").clicked() { }
+
+				io.separator();
+
                 if io.button("Quit").clicked() {
                     ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                 }
             });
 
-            if ui.button("Undo").clicked() { }
-            if ui.button("Redo").clicked() { }
+            if ui.button("Undo").clicked() { invoker.undo_command(snarl); }
+            if ui.button("Redo").clicked() { invoker.redo_command(snarl); }
         });
 
         // ui.separator();
@@ -54,8 +58,13 @@ pub fn show(ctx: &egui::Context, project_name: &str, snarl: &mut egui_snarl::Sna
 		let mut style = SnarlStyle::new();
 		theme.apply_to_snarl_style(&mut style);
 
-		let mut viewer = PergaminoViewer { theme };
+		let mut viewer = PergaminoViewer { 
+			theme: &theme, 
+			invoker: invoker
+		};
 		let snarl_id = egui::Id::new("pergamino_graph_id");
+
+		viewer.check_inputs(ui, snarl);
 
 		snarl.show(&mut viewer, &style, snarl_id, ui);
     });

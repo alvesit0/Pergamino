@@ -1,13 +1,14 @@
-use egui::Frame;
+use egui::{Frame, Ui};
 use egui_snarl::{Snarl, ui::{AnyPins, SnarlViewer}};
 
-use crate::{graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}}, ui::theme::PergaminoTheme};
+use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}}, ui::theme::PergaminoTheme};
 
-pub struct PergaminoViewer {
-	pub theme: PergaminoTheme,
+pub struct PergaminoViewer<'a> {
+	pub theme: &'a PergaminoTheme,
+	pub invoker: &'a mut CommandInvoker
 }
 
-impl SnarlViewer<PergaminoNode> for PergaminoViewer {
+impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 	fn title(&mut self, node: &PergaminoNode) -> String {
 		node.title()
 	}
@@ -56,7 +57,8 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		match (from_type, to_type) {
 			(Some(out_t), Some(in_t)) => {
 				if out_t.is_compatible_with(&in_t) {
-					snarl.connect(from.id, to.id);
+					let cmd = AddConnectionCommand { from: from.id, to: to.id };
+					self.invoker.execute_command(cmd, snarl);
 				} else {
 					println!("Incompatible connection!!");
 				}
@@ -72,8 +74,8 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		from: &egui_snarl::OutPin, 
 		to: &egui_snarl::InPin, 
 		snarl: &mut egui_snarl::Snarl<PergaminoNode>) {
-		
-		snarl.disconnect(from.id, to.id);
+		let cmd = RemoveConnectionCommand { from: from.id, to: to.id };
+		self.invoker.execute_command(cmd, snarl);
 	}
 
 	fn has_graph_menu(&mut self, _pos: egui::Pos2, _snarl: &mut egui_snarl::Snarl<PergaminoNode>) -> bool {
@@ -93,13 +95,19 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		egui::Pos2, 
 		ui: &mut egui::Ui, 
 		snarl: &mut egui_snarl::Snarl<PergaminoNode>) {
-		
+
 		ui.label("Add node");
 		ui.separator();
 
 		for node in PergaminoNode::prototypes() {
 			if ui.button(node.title()).clicked() {
-				snarl.insert_node(pos, node);
+				let cmd = AddNodeCommand {
+					prototype: node.clone(),
+					pos,
+					initial_connection: None,
+					last_created_id: None
+				};
+				self.invoker.execute_command(cmd, snarl);
 				ui.close();
 			}
 		}
@@ -115,6 +123,7 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 		ui.label("Connect to...");
 		ui.separator();
 
+		// obtener pin de salida, pin de entrada y tipo de pin de salida
 		let (src_out_id, src_in_id, src_type) = match src_pins {
 			AnyPins::Out(pins) => {
 				if let Some(&pin_id) = pins.first() {
@@ -157,17 +166,28 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 			// si encontramos compatibilidad, pintamos el botón
 			if let Some(idx) = target_pin_index {
 				if ui.button(prototype.title()).clicked() {
-					let new_node_id = snarl.insert_node(pos, prototype);
+					let connection_info = if let Some(from_id) = src_out_id {
+						Some(PendingConnection::FromOutput { 
+							source: from_id, 
+							target_input_idx: idx 
+						})
+					} else if let Some(to_id) = src_in_id {
+						Some(PendingConnection::FromInput { 
+							source: to_id, 
+							target_output_idx: idx
+						})
+					} else {
+						None
+					};
 
-					if let Some(from_id) = src_out_id {
-						let to_id = egui_snarl::InPinId { node: new_node_id, input: idx };
-						snarl.connect(from_id, to_id);
-					}
-					else if let Some(to_id) = src_in_id {
-						let from_id = egui_snarl::OutPinId { node: new_node_id, output: idx };
-						snarl.connect(from_id, to_id);
-					}
+					let cmd = AddNodeCommand {
+						prototype: prototype.clone(),
+						pos,
+						initial_connection: connection_info,
+						last_created_id: None
+					};
 
+					self.invoker.execute_command(cmd, snarl);
 					ui.close();
 				}
 			}
@@ -187,7 +207,7 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 			node.show_node_menu(node_id, inputs, outputs, ui)
 		};
 
-		Self::process_action(snarl, action, node_id);
+		Self::process_action(snarl, action, node_id, self.invoker);
 	}
 
 	fn has_body(&mut self, node: &PergaminoNode) -> bool {
@@ -214,7 +234,7 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 			node.show_body(node_id, inputs, outputs, ui, &candidates)
 		};
 
-		Self::process_action(snarl, action, node_id);
+		Self::process_action(snarl, action, node_id, self.invoker);
 	}
 
 	fn show_header(
@@ -264,25 +284,40 @@ impl SnarlViewer<PergaminoNode> for PergaminoViewer {
 	}
 }
 
-impl PergaminoViewer {
+impl<'a> PergaminoViewer<'a> {
 	fn apply_node_base_style(&self, ui: &mut egui::Ui) {
+		// text color only for now lol
 		ui.visuals_mut().override_text_color = Some(self.theme.node_text_color);
+	}
+
+	pub fn check_inputs(&mut self, ui: &mut Ui, snarl: &mut Snarl<PergaminoNode>) {
+		if ui.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::Z)) {
+			self.invoker.undo_command(snarl);
+		}
+
+		if ui.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::Y)) {
+			self.invoker.redo_command(snarl);
+		}
 	}
 
 	fn process_action(
 		snarl: &mut Snarl<PergaminoNode>,
 		action: NodeAction,
-		node_id: egui_snarl::NodeId
+		node_id: egui_snarl::NodeId,
+		invoker: &mut CommandInvoker
 	) {
 		match action {
 			NodeAction::RemoveSelf => {
-				snarl.remove_node(node_id);
+				let cmd = RemoveNodeCommand::new(node_id, snarl);
+				invoker.execute_command(cmd, snarl);
 			}
 			NodeAction::Connect(from, to) => {
-				snarl.connect(from.id, to.id);
+				let cmd = AddConnectionCommand { from: from.id, to: to.id };
+				invoker.execute_command(cmd, snarl);
 			}
 			NodeAction::Disconnect(from, to) => {
-				snarl.disconnect(from.id, to.id);
+				let cmd = RemoveConnectionCommand { from: from.id, to: to.id };
+				invoker.execute_command(cmd, snarl);
 			}
 			NodeAction::None => {}
 		}

@@ -35,8 +35,8 @@ impl eframe::App for PergaminoApp {
                 ui::create_project::show(ctx, temp_name)
             },
 
-            AppState::Editor { project_name, snarl } => {
-                ui::editor::show(ctx, project_name, snarl)
+            AppState::Editor { project_name, snarl, invoker } => {
+                ui::editor::show(ctx, project_name, snarl, invoker)
             }
 
         };

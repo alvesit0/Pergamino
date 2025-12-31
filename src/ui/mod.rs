@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
 use egui_snarl::Snarl;
 
-use crate::graph::node::PergaminoNode;
+use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode};
 
 pub mod welcome;
 pub mod create_project;
@@ -9,13 +8,14 @@ pub mod editor;
 pub mod window_frame;
 pub mod theme;
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Clone)]
 pub enum AppState {
     Welcome,
     NamingProject { temp_name: String },
     Editor { 
 		project_name: String,
-		snarl: Snarl<PergaminoNode>
+		snarl: Snarl<PergaminoNode>,
+		invoker: CommandInvoker
 	}
 }
 

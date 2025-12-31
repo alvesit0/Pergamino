@@ -40,7 +40,7 @@ impl PergaminoTheme {
 		style.bg_pattern_stroke = Some(Stroke { width: 1.0, color: self.editor_grid_color });
 
 		style.wire_width = Some(self.wire_width);
-		style.wire_style = Some(WireStyle::Bezier3);
+		style.wire_style = Some(WireStyle::Bezier5);
 		style.wire_smoothness = Some(0.0);
 		style.header_drag_space = Some(Vec2::new(0.0, 0.0));
 
