@@ -130,12 +130,12 @@ fn render_title_bar(ui: &mut egui::Ui, rect: egui::Rect, config: &WindowConfig) 
 }
 
 fn render_resize_grip(ui: &mut egui::Ui, app_rect: egui::Rect) {
-	let grip_size = vec2(14.0, 14.0);
+	let grip_size = vec2(12.0, 12.0);
 	let grip_rect = egui::Rect::from_min_size(app_rect.max - grip_size, grip_size);
 	let grip_response = ui.interact(grip_rect, Id::new("resize_grip"), Sense::drag());
 
 	ui.painter().line_segment(
-		[grip_rect.max - vec2(-2.0, 7.0), grip_rect.max - vec2(7.0, -2.0)],
+		[grip_rect.max - vec2(-4.0, 8.0), grip_rect.max - vec2(8.0, -4.0)],
 		ui.visuals().widgets.noninteractive.fg_stroke,
 	);
 

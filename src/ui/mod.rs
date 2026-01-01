@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use egui_snarl::Snarl;
 
 use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode};
@@ -14,6 +16,9 @@ pub enum AppState {
     NamingProject { temp_name: String },
     Editor { 
 		project_name: String,
+		// ruta del archivo actual
+		file_path: Option<PathBuf>,
+
 		snarl: Snarl<PergaminoNode>,
 		invoker: CommandInvoker
 	}
@@ -31,6 +36,6 @@ impl PartialEq for AppState {
 			return false;
         } else {
 			return true;
-		} 
+		}
 	}
 }

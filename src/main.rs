@@ -58,9 +58,15 @@ fn main() -> eframe::Result {
             //  return Ok(Box::new(app));
             // }
 
+			let app: PergaminoApp = if let Some(storage) = cc.storage {
+				eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
+			} else {
+				PergaminoApp::default()
+			};
+
             // cc.egui_ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize([400.0, 240.0].into()));
 
-            Ok(Box::<PergaminoApp>::default())
+            Ok(Box::new(app))
         }),
     )
 }

@@ -35,7 +35,12 @@ pub fn show(ctx: &egui::Context, temp_name: &mut String) -> Option<AppState> {
                     let enter = response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
 
                     if (ui.button("Create").clicked() || enter) && !temp_name.trim().is_empty() {
-                        next_state = Some(AppState::Editor { project_name: temp_name.clone(), snarl: Snarl::new(), invoker: CommandInvoker::default() });
+                        next_state = Some(AppState::Editor { 
+							project_name: temp_name.clone(), 
+							file_path: None, 
+							snarl: Snarl::new(), 
+							invoker: CommandInvoker::default() 
+						});
                     }
                 })
             })

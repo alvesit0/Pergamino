@@ -1,8 +1,15 @@
-use egui::{Frame, Ui};
+use egui::{Frame, RichText, Ui};
 use egui_snarl::{Snarl, ui::{AnyPins, SnarlViewer}};
 
 use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}}, ui::theme::PergaminoTheme};
 
+// ' indica lifetime, "a" podría ser cualquier cosa
+// especificar esto cuando se tienen referencias se debe hacer porque si 
+// no Rust dice: "y si se destruye esta referencia, yo que hago con ella?"
+// 'a le promete al compilador que la estructura PergaminoViewer NUNCA vivirá
+// más que las referencias 'a que contiene.
+// al establecer esto, intentar matar a &theme o &mut invoker antes que a 
+// PergaminoViewer provocará que el compilador se queje
 pub struct PergaminoViewer<'a> {
 	pub theme: &'a PergaminoTheme,
 	pub invoker: &'a mut CommandInvoker
@@ -246,11 +253,12 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			snarl: &mut Snarl<PergaminoNode>,
 		) {
 		self.apply_node_base_style(ui);
+
 		let node = &snarl[node_id];
 
 		ui.vertical_centered(|ui| {
-			ui.label(node.title());
-		});	
+			ui.label(RichText::new(node.title()).strong().size(15.0));
+		});
 	}
 
 	fn header_frame(

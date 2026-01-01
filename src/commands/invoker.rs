@@ -1,3 +1,5 @@
+use std::usize;
+
 use egui_snarl::Snarl;
 
 use crate::{commands::command::PergaminoCommand, graph::node::PergaminoNode};
@@ -5,14 +7,16 @@ use crate::{commands::command::PergaminoCommand, graph::node::PergaminoNode};
 #[derive(Clone)]
 pub struct CommandInvoker {
 	undo_stack: Vec<Box<dyn PergaminoCommand>>,
-	redo_stack: Vec<Box<dyn PergaminoCommand>>
+	redo_stack: Vec<Box<dyn PergaminoCommand>>,
+	saved_undo_count: usize
 }
 
 impl Default for CommandInvoker {
 	fn default() -> Self {
 		Self { 
 			undo_stack: Vec::default(), 
-			redo_stack: Vec::default() 
+			redo_stack: Vec::default(),
+			saved_undo_count: 0
 		}
 	}
 }
@@ -43,6 +47,23 @@ impl CommandInvoker {
 			command.execute(snarl);
 			self.undo_stack.push(command);
 		}
+	}
+
+	// llamar cuando se guarda el archivo con éxito
+	pub fn mark_as_saved(&mut self) {
+		self.saved_undo_count = self.undo_stack.len();
+	}
+
+	pub fn is_dirty(&self) -> bool {
+		self.undo_stack.len() != self.saved_undo_count
+	}
+
+	pub fn force_dirty(&mut self) {
+		self.saved_undo_count = usize::MAX;
+	}
+
+	pub fn reset_saved_state(&mut self) {
+		self.saved_undo_count = self.undo_stack.len();
 	}
 }
 
