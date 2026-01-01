@@ -37,6 +37,8 @@ fn main() -> eframe::Result {
             // This gives us image support:
             egui_extras::install_image_loaders(&cc.egui_ctx);
 			cc.egui_ctx.set_pixels_per_point(1.25);
+
+			cc.egui_ctx.memory_mut(|mem| *mem = Default::default());
             // esto es equivalente a poner "si cc.storage no es nulo (aunque los nulos no existen
             // en rust), crea una variable 'storage' con ese contenido y ejecuta el bloque"
             // if let Some(storage) = cc.storage {

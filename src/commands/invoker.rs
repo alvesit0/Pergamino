@@ -58,9 +58,9 @@ impl CommandInvoker {
 		self.undo_stack.len() != self.saved_undo_count
 	}
 
-	pub fn force_dirty(&mut self) {
-		self.saved_undo_count = usize::MAX;
-	}
+	// pub fn force_dirty(&mut self) {
+	// 	self.saved_undo_count = usize::MAX;
+	// }
 
 	pub fn reset_saved_state(&mut self) {
 		self.saved_undo_count = self.undo_stack.len();

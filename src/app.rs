@@ -16,20 +16,29 @@ pub struct PergaminoApp {
     #[serde(skip)]
     state: AppState,
 
-	config: AppConfig
+	config: AppConfig,
+
+	#[serde(skip)]
+	is_first_frame: bool
 }
 
 impl Default for PergaminoApp {
     fn default() -> Self {
         Self {
             state: AppState::Welcome,
-			config: AppConfig::default()
+			config: AppConfig::default(),
+			is_first_frame: true
         }
     }
 }
 
 impl eframe::App for PergaminoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+
+		if self.is_first_frame {
+			self.is_first_frame = false;
+			ui::welcome::start(ctx);
+		}
 
         let potential_new_state = match &mut self.state {
             AppState::Welcome => {
@@ -70,6 +79,10 @@ impl eframe::App for PergaminoApp {
     }
 
 	fn save(&mut self, storage: &mut dyn eframe::Storage) {
+		if let AppState::Editor { file_path: Some(path), .. } = &self.state {
+			self.config.last_project_path = Some(path.clone());
+		}
+
 		eframe::set_value(storage, eframe::APP_KEY, self);
 	}
 
