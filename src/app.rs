@@ -35,7 +35,7 @@ impl Default for PergaminoApp {
 impl eframe::App for PergaminoApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
-		if self.is_first_frame {
+		if self.is_first_frame { // MASSIVE HACK YAY
 			self.is_first_frame = false;
 			ui::welcome::start(ctx);
 		}
@@ -60,7 +60,7 @@ impl eframe::App for PergaminoApp {
         if let Some(new_state) = potential_new_state {
             if new_state != self.state {
                 match &new_state {
-					AppState::Welcome => ui::welcome::start(ctx),
+					AppState::Welcome => {}, // MASSIVE HACK
                     AppState::NamingProject { .. } => ui::create_project::start(ctx),
 					AppState::Editor { .. } => ui::editor::start(ctx),
 				}

@@ -20,18 +20,18 @@ pub fn show(ctx: &egui::Context, temp_name: &mut String) -> Option<AppState> {
         .fixed_size([300.0, 150.0])
         .show(ctx, |ui| {
             ui.with_layout(egui::Layout::top_down_justified(egui::Align::Center), |ui| {
-                ui.add_space(10.0);
+                ui.add_space(8.0);
                 ui.label("Project name");
+				ui.add_space(4.0);
 
                 let response = ui.text_edit_singleline(temp_name);
                 response.request_focus();
 
-                ui.add_space(15.0);
-                ui.horizontal(|ui| {
-                    if ui.button("Cancel").clicked() {
-                        next_state = Some(AppState::Welcome);
-                    }
+                ui.add_space(12.0);
 
+				let layout = egui::Layout::right_to_left(egui::Align::TOP);
+
+                ui.with_layout(layout,|ui| {
                     let enter = response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
 
                     if (ui.button("Create").clicked() || enter) && !temp_name.trim().is_empty() {
@@ -41,6 +41,10 @@ pub fn show(ctx: &egui::Context, temp_name: &mut String) -> Option<AppState> {
 							snarl: Snarl::new(), 
 							invoker: CommandInvoker::default() 
 						});
+                    }
+
+					if ui.button("Cancel").clicked() {
+                        next_state = Some(AppState::Welcome);
                     }
                 })
             })
