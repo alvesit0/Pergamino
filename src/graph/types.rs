@@ -12,7 +12,7 @@ impl DataType {
 		match self {
 			DataType::Number => Color32::from_rgb(100, 200, 255),
 			DataType::String => Color32::from_rgb(255, 200, 100),
-			DataType::Any => Color32::GRAY,
+			DataType::Any => Color32::WHITE,
 		}
 	}
 

@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 use serde::{Serialize, Deserialize};
 
-use crate::graph::nodes::{add::AddNode, complex::ComplexNode, number::NumberNode};
+use crate::graph::nodes::{add::AddNode, complex::ComplexNode, dialogue::DialogueNode, number::NumberNode, start::StartNode};
 
 // #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 // #[enum_dispatch]
@@ -42,9 +42,12 @@ macro_rules! define_node_enum {
 
 define_node_enum! {
 	pub enum PergaminoNode {
-		Number(NumberNode),
-		Add(AddNode),
-		Complex(ComplexNode),
+		// Number(NumberNode),
+		// Add(AddNode),
+		// Complex(ComplexNode),
+		Dialogue(DialogueNode),
+		Start(StartNode)
+
 		// ADD NEW NODES HERE
 	}
 }

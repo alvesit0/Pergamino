@@ -26,10 +26,10 @@ pub fn start(ctx: &egui::Context) {
 }
 
 pub fn show(
-	ctx: &egui::Context, 
+	ctx: &egui::Context,
 	project_name: &mut String,
 	file_path: &mut Option<PathBuf>,
-	snarl: &mut egui_snarl::Snarl<PergaminoNode>, 
+	snarl: &mut egui_snarl::Snarl<PergaminoNode>,
 	invoker: &mut CommandInvoker
 ) -> Option<AppState> {
     let mut _next_state = None;

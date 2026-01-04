@@ -3,7 +3,13 @@ use egui_snarl::{NodeId};
 use enum_dispatch::enum_dispatch;
 use crate::graph::node::PergaminoNode;
 
-use crate::graph::nodes::{add::AddNode, number::NumberNode, complex::ComplexNode};
+use crate::graph::nodes::{
+	add::AddNode, 
+	number::NumberNode, 
+	complex::ComplexNode, 
+	dialogue::DialogueNode, 
+	start::StartNode
+};
 use crate::graph::types::DataType;
 
 #[allow(dead_code)]
