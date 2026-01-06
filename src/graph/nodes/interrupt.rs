@@ -122,11 +122,11 @@ impl PergaminoNodeBehavior for InterruptNode {
 	}
 
 	fn input_type(&self, _index: usize) -> Option<DataType> {
-		Some(DataType::Any)
+		Some(DataType::RegularStatement)
 	}
 
 	fn output_type(&self, _index: usize) -> Option<DataType> {
-		Some(DataType::Any)
+		Some(DataType::RegularStatement)
 	}
 
 	fn output_max_connections(&self,_index:usize) -> usize {

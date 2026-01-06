@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 use serde::{Serialize, Deserialize};
 
-use crate::graph::nodes::{dialogue::DialogueNode, interrupt::InterruptNode};
+use crate::graph::nodes::{dialogue::DialogueNode, interrupt::InterruptNode, passive_routine::PassiveRoutineNode};
 
 // #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 // #[enum_dispatch]
@@ -46,7 +46,8 @@ define_node_enum! {
 		// Add(AddNode),
 		// Complex(ComplexNode),
 		Dialogue(DialogueNode),
-		Interrupt(InterruptNode)
+		Interrupt(InterruptNode),
+		PassiveRoutine(PassiveRoutineNode)
 
 		// ADD NEW NODES HERE
 	}

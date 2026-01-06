@@ -7,7 +7,8 @@ use crate::graph::nodes::{
 	// number::NumberNode, 
 	// complex::ComplexNode, 
 	dialogue::DialogueNode, 
-	interrupt::InterruptNode
+	interrupt::InterruptNode,
+	passive_routine::PassiveRoutineNode
 };
 use crate::graph::types::DataType;
 
