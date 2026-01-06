@@ -1,7 +1,7 @@
 use eframe::egui;
 use crate::commands::invoker::CommandInvoker;
 
-use super::AppState;
+use super::super::AppState;
 use egui_snarl::Snarl;
 
 pub fn start(_ctx: &egui::Context) {

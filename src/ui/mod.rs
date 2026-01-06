@@ -5,7 +5,6 @@ use egui_snarl::Snarl;
 use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode};
 
 pub mod welcome;
-pub mod create_project;
 pub mod editor;
 pub mod window_frame;
 pub mod theme;

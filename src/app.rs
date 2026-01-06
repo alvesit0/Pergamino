@@ -37,21 +37,21 @@ impl eframe::App for PergaminoApp {
 
 		if self.is_first_frame { // MASSIVE HACK YAY
 			self.is_first_frame = false;
-			ui::welcome::start(ctx);
+			ui::welcome::welcome::start(ctx);
 		}
 
         let potential_new_state = match &mut self.state {
             AppState::Welcome => {
-                ui::welcome::show(ctx, &self.config.last_project_path)
+                ui::welcome::welcome::show(ctx, &self.config.last_project_path)
             },
 
             AppState::NamingProject { temp_name } => {
-                ui::welcome::show(ctx, &self.config.last_project_path);
-                ui::create_project::show(ctx, temp_name)
+                ui::welcome::welcome::show(ctx, &self.config.last_project_path);
+                ui::welcome::create_project::show(ctx, temp_name)
             },
 
             AppState::Editor { project_name, file_path, snarl, invoker } => {
-                ui::editor::show(ctx, project_name, file_path, snarl, invoker)
+                ui::editor::editor::show(ctx, project_name, file_path, snarl, invoker)
             }
 
         };
@@ -61,8 +61,8 @@ impl eframe::App for PergaminoApp {
             if new_state != self.state {
                 match &new_state {
 					AppState::Welcome => {}, // MASSIVE HACK
-                    AppState::NamingProject { .. } => ui::create_project::start(ctx),
-					AppState::Editor { .. } => ui::editor::start(ctx),
+                    AppState::NamingProject { .. } => ui::welcome::create_project::start(ctx),
+					AppState::Editor { .. } => ui::editor::editor::start(ctx),
 				}
 
 				self.state = new_state;

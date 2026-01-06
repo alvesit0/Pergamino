@@ -5,7 +5,7 @@ use egui_snarl::ui::{SnarlStyle};
 use rfd::FileDialog;
 use crate::{commands::invoker::CommandInvoker, graph::{node::PergaminoNode, viewer::PergaminoViewer}, io, ui::theme::PergaminoTheme};
 
-use super::{AppState, window_frame};
+use super::super::{AppState, window_frame};
 
 pub fn start(ctx: &egui::Context) {
 	let width = 1024.0;

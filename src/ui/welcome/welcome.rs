@@ -4,7 +4,7 @@ use eframe::egui;
 use rfd::FileDialog;
 use crate::{commands::invoker::{CommandInvoker}, io::{self}};
 
-use super::{AppState, window_frame};
+use super::super::{AppState, window_frame};
 
 pub fn start(ctx: &egui::Context) {
 	let width = 360.0;

@@ -1,4 +1,4 @@
-use egui::{CollapsingHeader, Color32, TextEdit, collapsing_header};
+use egui::{Color32, TextEdit};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
@@ -6,15 +6,13 @@ use crate::graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNod
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct DialogueNode {
-	text: String,
-	choices: Vec<String>
+	pub text: String,
 }
 
 impl Default for DialogueNode {
 	fn default() -> Self {
 		Self { 
 			text: Default::default(),
-			choices: Vec::new()
 		}
 	}
 }
@@ -30,43 +28,26 @@ impl PergaminoNodeBehavior for DialogueNode {
 
 	fn show_input(&mut self, 
 		_pin: &egui_snarl::InPin, 
-		_ui: &mut egui::Ui
+		_ui: &mut egui::Ui,
 	) -> egui_snarl::ui::PinInfo {
 		PinInfo::circle().with_fill(DataType::RegularStatement.color())
 	}
 
 	fn outputs(&self) -> usize {
-		1 + self.choices.len()
+		1
 	}
 
 	fn show_output(
 		&mut self, 
-		pin: &egui_snarl::OutPin, 
-		ui: &mut egui::Ui,
+		_pin: &egui_snarl::OutPin, 
+		_ui: &mut egui::Ui,
 	) -> egui_snarl::ui::PinInfo {
-		if pin.id.output == 0 {
-			if self.choices.is_empty() {
-				PinInfo::circle().with_fill(DataType::RegularStatement.color())
-			} else {
-				PinInfo::circle().with_fill(Color32::RED)
-			}
-		} else {
-			let index = (pin.id.output - 1) as f32;
-			let start_y = 120.0;
-			let row_height = 24.0;
-			
-			let mut info = PinInfo::triangle()
-				.with_fill(DataType::RegularStatement.color());
-			
-			info.position = Some(start_y + (index * row_height));
-
-			info
-		}
+		PinInfo::circle().with_fill(DataType::RegularStatement.color())
 	}
 
 	fn show_body(
 		&mut self,
-		_node_id:egui_snarl::NodeId,
+		_node_id: egui_snarl::NodeId,
 		_inputs: &[egui_snarl::InPin],
 		_outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
@@ -79,7 +60,6 @@ impl PergaminoNodeBehavior for DialogueNode {
 			ui.add_space(8.0);
 
 			ui.horizontal(|ui| {
-
 				let output = TextEdit::multiline(&mut self.text)
 					.desired_rows(3)
 					.desired_width(200.0)
@@ -89,71 +69,25 @@ impl PergaminoNodeBehavior for DialogueNode {
 				if output.response.changed() {
 					if let Some(mut state) = egui::widgets::text_edit::TextEditState::load(ui.ctx(), output.response.id) {
 						if let Some(primary_cursor) = state.cursor.char_range().map(|r| r.primary) {
-
 							let galley = output.galley;
-							let new_text = galley.rows
-								.iter()
-								.map(|row| row.text())
-								.collect::<Vec<String>>()
-								.join("\n");
+							let new_text = galley.rows.iter().map(|row| row.text()).collect::<Vec<String>>().join("\n");
 
 							if new_text != self.text {
-
 								let old_len = self.text.len();
 								let new_len = new_text.len();
-
 								self.text = new_text;
-
 								let new_cursor_idx = if primary_cursor.index >= old_len {
 									new_len
 								} else {
 									primary_cursor.index + (new_len - old_len)
 								};
-
 								let new_ccursor = egui::text::CCursor::new(new_cursor_idx);
-								let new_range = egui::text::CCursorRange::one(new_ccursor);
-
-								state.cursor.set_char_range(Some(new_range));
+								state.cursor.set_char_range(Some(egui::text::CCursorRange::one(new_ccursor)));
 								state.store(ui.ctx(), output.response.id);
 							}
 						}
 					}
 				}
-			});
-
-			ui.add_space(8.0);
-
-			ui.horizontal(|ui| {
-				CollapsingHeader::new("Choices")
-					.show(ui, |ui| {
-						ui.vertical(|ui| {
-							if ui.button("+ Add Option").clicked() {
-								self.choices.push("New choice".to_string());
-							}
-
-							ui.add_space(4.0);
-
-							let mut index_to_remove = None;
-
-							for (idx, choice) in self.choices.iter_mut().enumerate() {
-								ui.horizontal(|ui| {
-
-									if ui.button("🗑").on_hover_text("Remove choice").clicked() {
-										index_to_remove = Some(idx);
-									}
-									
-									ui.add(
-										TextEdit::singleline(choice)
-											.desired_width(160.0)
-									);
-								});
-							}
-
-							if let Some(idx) = index_to_remove {
-								self.choices.remove(idx);
-							}
-						});
-					});
 			});
 		});
 

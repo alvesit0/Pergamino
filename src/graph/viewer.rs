@@ -254,6 +254,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			.filter(|(id, _)| *id != node_id)
 			.map(|(_, node)| node.clone())
 			.collect();
+		
 
 		let action = {
 			let node = &mut snarl[node_id];
