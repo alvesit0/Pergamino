@@ -2,7 +2,7 @@ use std::{path::PathBuf};
 
 use eframe::egui;
 use rfd::FileDialog;
-use crate::{commands::invoker::{CommandInvoker}, io::{self}};
+use crate::{commands::invoker::CommandInvoker, io::{self}, ui::EditorUiState};
 
 use super::super::{AppState, window_frame};
 
@@ -63,7 +63,10 @@ pub fn show(ctx: &egui::Context, last_project: &Option<PathBuf>) -> Option<AppSt
 										project_name: project.meta.project_name,
 										file_path: Some(path.clone()),
 										snarl: project.data,
-										invoker
+										invoker,
+							            settings: project.meta.settings,
+							            variables: project.meta.variables,
+							            ui_state: EditorUiState::default(),
 									}) 
 								},
 								Err(e) => eprintln!("Error: {}", e),
@@ -88,7 +91,10 @@ pub fn show(ctx: &egui::Context, last_project: &Option<PathBuf>) -> Option<AppSt
 								project_name: project.meta.project_name,
 								file_path: Some(path),
 								snarl: project.data,
-								invoker
+								invoker,
+						        settings: project.meta.settings,
+							    variables: project.meta.variables,
+							    ui_state: EditorUiState::default(),
 							})
 						},
 						Err(e) => eprintln!("Error: {}", e)

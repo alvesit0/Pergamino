@@ -1,5 +1,5 @@
 use eframe::egui;
-use crate::commands::invoker::CommandInvoker;
+use crate::{commands::invoker::CommandInvoker, io::project::ProjectSettings, ui::EditorUiState};
 
 use super::super::AppState;
 use egui_snarl::Snarl;
@@ -37,7 +37,10 @@ pub fn show(ctx: &egui::Context, temp_name: &mut String) -> Option<AppState> {
 							project_name: temp_name.clone(),
 							file_path: None,
 							snarl: Snarl::new(),
-							invoker: CommandInvoker::default()
+							invoker: CommandInvoker::default(),
+                            settings: ProjectSettings::default(),
+                            variables: Vec::new(),
+                            ui_state: EditorUiState::default(),
 						});
                     }
 

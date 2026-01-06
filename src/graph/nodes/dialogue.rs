@@ -9,6 +9,8 @@ pub struct DialogueNode {
 	pub text: String,
 }
 
+// TODO: make BBCode dialogue modifier HEADER FIELD
+
 impl Default for DialogueNode {
 	fn default() -> Self {
 		Self { 

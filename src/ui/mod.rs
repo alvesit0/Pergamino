@@ -2,12 +2,18 @@ use std::path::PathBuf;
 
 use egui_snarl::Snarl;
 
-use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode};
+use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode, io::project::{ProjectSettings, Variable}};
 
 pub mod welcome;
 pub mod editor;
 pub mod window_frame;
 pub mod theme;
+
+#[derive(Clone, Default)]
+pub struct EditorUiState {
+	pub show_settings_modal: bool,
+	pub show_variables_modal: bool
+}
 
 #[derive(Clone)]
 pub enum AppState {
@@ -19,7 +25,12 @@ pub enum AppState {
 		file_path: Option<PathBuf>,
 
 		snarl: Snarl<PergaminoNode>,
-		invoker: CommandInvoker
+		invoker: CommandInvoker,
+
+		settings: ProjectSettings,
+		variables: Vec<Variable>,
+
+		ui_state: EditorUiState
 	}
 }
 

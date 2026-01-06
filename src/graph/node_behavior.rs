@@ -12,6 +12,7 @@ use crate::graph::nodes::{
 	choice::ChoiceNode
 };
 use crate::graph::types::DataType;
+use crate::io::project::{ProjectSettings, Variable};
 
 #[allow(dead_code)]
 pub enum NodeAction {
@@ -19,6 +20,11 @@ pub enum NodeAction {
 	Disconnect(egui_snarl::OutPin, egui_snarl::InPin),
 	Connect(egui_snarl::OutPin, egui_snarl::InPin),
 	RemoveSelf
+}
+
+pub struct GraphContext<'a> {
+	pub settings: &'a ProjectSettings,
+	pub variables: &'a [Variable]
 }
 
 pub const UNLIMITED_CONNECTIONS: usize = usize::MAX;
