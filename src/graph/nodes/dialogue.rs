@@ -1,8 +1,8 @@
 use egui::{Color32, TextEdit};
-use egui_snarl::{NodeId, ui::PinInfo};
+use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node_behavior::{NodeAction, PergaminoNodeBehavior}, types::DataType};
+use crate::graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}, types::DataType};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct DialogueNode {
@@ -28,7 +28,7 @@ impl PergaminoNodeBehavior for DialogueNode {
 		_pin: &egui_snarl::InPin, 
 		_ui: &mut egui::Ui
 	) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(DataType::Any.color())
+		PinInfo::circle().with_fill(DataType::RegularStatement.color())
 	}
 
 	fn outputs(&self) -> usize {
@@ -40,7 +40,7 @@ impl PergaminoNodeBehavior for DialogueNode {
 		_pin: &egui_snarl::OutPin, 
 		_ui: &mut egui::Ui,
 	) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(DataType::Any.color())
+		PinInfo::circle().with_fill(DataType::RegularStatement.color())
 	}
 
 	fn show_body(
@@ -49,7 +49,7 @@ impl PergaminoNodeBehavior for DialogueNode {
 		_inputs: &[egui_snarl::InPin],
 		_outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
-		_candidates: &[(NodeId,String)]
+		_nodes: &[PergaminoNode]
 	) -> NodeAction {
 		let mut _action = NodeAction::None;
 
@@ -109,10 +109,10 @@ impl PergaminoNodeBehavior for DialogueNode {
 	}
 
 	fn input_type(&self, _index: usize) -> Option<DataType> {
-		Some(DataType::Any)
+		Some(DataType::RegularStatement)
 	}
 
 	fn output_type(&self, _index: usize) -> Option<DataType> {
-		Some(DataType::Any)
+		Some(DataType::RegularStatement)
 	}
 }

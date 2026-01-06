@@ -1,14 +1,13 @@
 use egui::Color32;
-use egui_snarl::{NodeId};
 use enum_dispatch::enum_dispatch;
 use crate::graph::node::PergaminoNode;
 
 use crate::graph::nodes::{
-	add::AddNode, 
-	number::NumberNode, 
-	complex::ComplexNode, 
+	// add::AddNode, 
+	// number::NumberNode, 
+	// complex::ComplexNode, 
 	dialogue::DialogueNode, 
-	start::StartNode
+	interrupt::InterruptNode
 };
 use crate::graph::types::DataType;
 
@@ -20,8 +19,12 @@ pub enum NodeAction {
 	RemoveSelf
 }
 
+pub const UNLIMITED_CONNECTIONS: usize = usize::MAX;
+
 #[enum_dispatch]
 pub trait PergaminoNodeBehavior {
+	fn on_create(&mut self, _nodes: &[PergaminoNode]) { }
+
 	fn title(&self) -> String;
 
 	fn inputs(&self) -> usize;
@@ -62,7 +65,7 @@ pub trait PergaminoNodeBehavior {
 		inputs: &[egui_snarl::InPin],
 		outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
-		candidates: &[(NodeId, String)]
+		graph_nodes: &[PergaminoNode]
 	) -> NodeAction;
 
 	fn accent_color(&self) -> Color32 {
@@ -75,5 +78,13 @@ pub trait PergaminoNodeBehavior {
 
 	fn output_type(&self, _index: usize) -> Option<DataType> {
 		Some(DataType::Any)
+	}
+
+	fn input_max_connections(&self, _index: usize) -> usize {
+		UNLIMITED_CONNECTIONS
+	}
+
+	fn output_max_connections(&self, _index: usize) -> usize {
+		1
 	}
 }

@@ -1,7 +1,7 @@
 use egui::{Frame, RichText, Ui};
-use egui_snarl::{Snarl, ui::{AnyPins, SnarlViewer}};
+use egui_snarl::{InPinId, OutPinId, Snarl, ui::{AnyPins, SnarlViewer}};
 
-use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior}}, ui::theme::PergaminoTheme};
+use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}}, ui::theme::PergaminoTheme};
 
 // ' indica lifetime, "a" podría ser cualquier cosa
 // especificar esto cuando se tienen referencias se debe hacer porque si 
@@ -64,6 +64,8 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 		match (from_type, to_type) {
 			(Some(out_t), Some(in_t)) => {
 				if out_t.is_compatible_with(&in_t) {
+					self.enforce_pin_limits(snarl, Some(from.id), Some(to.id));
+
 					let cmd = AddConnectionCommand { from: from.id, to: to.id };
 					self.invoker.execute_command(cmd, snarl);
 				} else {
@@ -106,10 +108,18 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 		ui.label("Add node");
 		ui.separator();
 
+		let current_nodes: Vec<PergaminoNode> = snarl.node_ids()
+			.map(|(_, n)| n.clone())
+			.collect();
+
 		for node in PergaminoNode::prototypes() {
 			if ui.button(node.title()).clicked() {
+				let mut new_node = node.clone();
+
+				new_node.on_create(&current_nodes);
+
 				let cmd = AddNodeCommand {
-					prototype: node.clone(),
+					prototype: new_node,
 					pos,
 					initial_connection: None,
 					last_created_id: None
@@ -156,6 +166,10 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 
 		let src_type = if let Some(t) = src_type { t } else { return };
 
+		let current_nodes: Vec<PergaminoNode> = snarl.node_ids()
+			.map(|(_, n)| n.clone())
+			.collect();
+
 		for prototype in PergaminoNode::prototypes() {
 			// buscamos un pin compatible con el prototipo
 			let target_pin_index = if src_out_id.is_some() {
@@ -173,6 +187,11 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			// si encontramos compatibilidad, pintamos el botón
 			if let Some(idx) = target_pin_index {
 				if ui.button(prototype.title()).clicked() {
+					let mut new_node = prototype.clone();
+					new_node.on_create(&current_nodes);
+
+					self.enforce_pin_limits(snarl, src_out_id, src_in_id);
+
 					let connection_info = if let Some(from_id) = src_out_id {
 						Some(PendingConnection::FromOutput { 
 							source: from_id, 
@@ -188,7 +207,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 					};
 
 					let cmd = AddNodeCommand {
-						prototype: prototype.clone(),
+						prototype: new_node,
 						pos,
 						initial_connection: connection_info,
 						last_created_id: None
@@ -231,14 +250,14 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 	) {
 		self.apply_node_base_style(ui);
 
-		let candidates: Vec<_> = snarl.node_ids()
+		let other_nodes: Vec<_> = snarl.node_ids()
 			.filter(|(id, _)| *id != node_id)
-			.map(|(id, _)| (id, format!("Node {:?}", id)))
+			.map(|(_, node)| node.clone())
 			.collect();
 
 		let action = {
 			let node = &mut snarl[node_id];
-			node.show_body(node_id, inputs, outputs, ui, &candidates)
+			node.show_body(node_id, inputs, outputs, ui, &other_nodes)
 		};
 
 		Self::process_action(snarl, action, node_id, self.invoker);
@@ -253,12 +272,18 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			snarl: &mut Snarl<PergaminoNode>,
 		) {
 		self.apply_node_base_style(ui);
-
 		let node = &snarl[node_id];
 
-		ui.vertical_centered(|ui| {
-			ui.label(RichText::new(node.title()).strong().size(15.0));
-		});
+		let full_rect = ui.max_rect();
+
+		ui.scope_builder(
+			egui::UiBuilder::new().max_rect(full_rect),
+			|ui| {
+				ui.vertical_centered(|ui| {
+					ui.label(RichText::new(node.title()).strong().size(15.0));
+				});
+			}
+		);
 	}
 
 	fn header_frame(
@@ -328,6 +353,56 @@ impl<'a> PergaminoViewer<'a> {
 				invoker.execute_command(cmd, snarl);
 			}
 			NodeAction::None => {}
+		}
+	}
+
+	fn enforce_pin_limits(
+		&mut self,
+		snarl: &mut Snarl<PergaminoNode>,
+		from: Option<OutPinId>,
+		to: Option<InPinId>
+	) {
+		if let Some(out_pin) = from {
+			let node = &snarl[out_pin.node];
+			let max_wires = node.output_max_connections(out_pin.output);
+
+			if max_wires < UNLIMITED_CONNECTIONS {
+				let wires: Vec<_> = snarl.wires()
+					.filter(|(src, _dst)| *src == out_pin)
+					.collect();
+
+				// si añadir un nodo excede el limite, borramos los mas antiguos
+				if wires.len() >= max_wires {
+					let to_remove_count = wires.len() - max_wires + 1;
+
+					for i in 0..to_remove_count {
+						let (src, dst) = wires[i];
+						let cmd = RemoveConnectionCommand { from: src, to: dst };
+						self.invoker.execute_command(cmd, snarl);
+					}
+				}
+			}
+		}
+
+		if let Some(in_pin) = to {
+			let node = &snarl[in_pin.node];
+			let max_wires = node.input_max_connections(in_pin.input);
+
+			if max_wires < UNLIMITED_CONNECTIONS {
+				let wires: Vec<_> = snarl.wires()
+					.filter(|(_src, dst)| *dst == in_pin)
+					.collect();
+
+				if wires.len() >= max_wires {
+					let to_remove_count = wires.len() - max_wires + 1;
+
+					for i in 0..to_remove_count {
+						let (src, dst) = wires[i];
+						let cmd = RemoveConnectionCommand { from: src, to: dst };
+						self.invoker.execute_command(cmd, snarl);
+					}
+				}
+			}
 		}
 	}
 }
