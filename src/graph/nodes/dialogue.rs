@@ -1,8 +1,8 @@
-use egui::{Color32, TextEdit};
+use egui::{Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType};
+use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType}, ui::widgets::variable_text_edit::VariableTextEdit};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct DialogueNode {
@@ -56,7 +56,7 @@ impl PergaminoNodeBehavior for DialogueNode {
 		_outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
 		_nodes: &[PergaminoNode],
-		_context: &GraphContext
+		ctx: &GraphContext
 	) -> NodeAction {
 		let mut _action = NodeAction::None;
 
@@ -65,34 +65,11 @@ impl PergaminoNodeBehavior for DialogueNode {
 			ui.add_space(8.0);
 
 			ui.horizontal(|ui| {
-				let output = TextEdit::multiline(&mut self.text)
-					.desired_rows(3)
+				VariableTextEdit::new(&mut self.text, ctx.variables)
+					.multiline(3)
 					.desired_width(200.0)
-					.char_limit(80)
+					.char_limit(ctx.settings.max_dialogue_chars)
 					.show(ui);
-
-				if output.response.changed() {
-					if let Some(mut state) = egui::widgets::text_edit::TextEditState::load(ui.ctx(), output.response.id) {
-						if let Some(primary_cursor) = state.cursor.char_range().map(|r| r.primary) {
-							let galley = output.galley;
-							let new_text = galley.rows.iter().map(|row| row.text()).collect::<Vec<String>>().join("\n");
-
-							if new_text != self.text {
-								let old_len = self.text.len();
-								let new_len = new_text.len();
-								self.text = new_text;
-								let new_cursor_idx = if primary_cursor.index >= old_len {
-									new_len
-								} else {
-									primary_cursor.index + (new_len - old_len)
-								};
-								let new_ccursor = egui::text::CCursor::new(new_cursor_idx);
-								state.cursor.set_char_range(Some(egui::text::CCursorRange::one(new_ccursor)));
-								state.store(ui.ctx(), output.response.id);
-							}
-						}
-					}
-				}
 			});
 		});
 

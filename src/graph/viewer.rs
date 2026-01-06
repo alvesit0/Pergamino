@@ -1,7 +1,23 @@
 use egui::{Frame, RichText, Ui};
 use egui_snarl::{InPinId, OutPinId, Snarl, ui::{AnyPins, SnarlViewer}};
 
-use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}}, io::project::{ProjectSettings, Variable}, ui::theme::PergaminoTheme};
+use crate::{commands::{graph::{
+	add_connection::AddConnectionCommand, 
+	add_node::{AddNodeCommand, PendingConnection}, 
+	remove_connection::RemoveConnectionCommand, 
+	remove_node::RemoveNodeCommand}, 
+	invoker::CommandInvoker}, 
+	graph::{
+		node::PergaminoNode, 
+		node_behavior::{
+			GraphContext, 
+			NodeAction, 
+			PergaminoNodeBehavior, 
+			UNLIMITED_CONNECTIONS
+		}}, 
+		io::project::{ProjectSettings, Variable}, 
+		ui::theme::PergaminoTheme
+	};
 
 // ' indica lifetime, "a" podría ser cualquier cosa
 // especificar esto cuando se tienen referencias se debe hacer porque si 
@@ -327,7 +343,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 }
 
 impl<'a> PergaminoViewer<'a> {
-	fn get_context(&self) -> GraphContext {
+	fn get_context(&'_ self) -> GraphContext<'_> {
 		GraphContext { 
 			settings: self.settings,
 			variables: self.variables

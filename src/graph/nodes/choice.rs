@@ -1,8 +1,8 @@
-use egui::{Button, Color32, TextEdit};
+use egui::{Button, Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType};
+use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType}, ui::widgets::variable_text_edit::VariableTextEdit};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ChoiceNode {
@@ -42,7 +42,7 @@ impl PergaminoNodeBehavior for ChoiceNode {
 		&mut self, 
 		pin: &egui_snarl::OutPin, 
 		ui: &mut egui::Ui,
-		_context: &GraphContext
+		ctx: &GraphContext
 	) -> egui_snarl::ui::PinInfo {
 		let idx = pin.id.output;
 		let count = self.choices.len();
@@ -66,7 +66,10 @@ impl PergaminoNodeBehavior for ChoiceNode {
 						let text = &mut self.choices[idx];
 						let text_width = ui.available_width() - BUTTON_SIZE - ui.spacing().item_spacing.x;
 						
-						ui.add(TextEdit::singleline(text).desired_width(text_width));
+						VariableTextEdit::new(text, ctx.variables)
+							.singleline()
+							.desired_width(text_width)
+							.show(ui);
 					}
 				}
 			);

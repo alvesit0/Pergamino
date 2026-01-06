@@ -8,6 +8,7 @@ pub mod welcome;
 pub mod editor;
 pub mod window_frame;
 pub mod theme;
+pub mod widgets;
 
 #[derive(Clone, Default)]
 pub struct EditorUiState {
