@@ -40,6 +40,7 @@ pub trait PergaminoNodeBehavior {
 		&mut self,
 		pin: &egui_snarl::InPin,
 		ui: &mut egui::Ui,
+		ctx: &GraphContext
 		) -> egui_snarl::ui::PinInfo;
 
 	fn outputs(&self) -> usize;
@@ -47,6 +48,7 @@ pub trait PergaminoNodeBehavior {
 		&mut self,
 		pin: &egui_snarl::OutPin,
 		ui: &mut egui::Ui,
+		ctx: &GraphContext
 	) -> egui_snarl::ui::PinInfo;
 
 	fn has_node_menu(&self) -> bool { true }
@@ -73,7 +75,8 @@ pub trait PergaminoNodeBehavior {
 		inputs: &[egui_snarl::InPin],
 		outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
-		graph_nodes: &[PergaminoNode]
+		graph_nodes: &[PergaminoNode],
+		ctx: &GraphContext
 	) -> NodeAction;
 
 	fn accent_color(&self) -> Color32 {

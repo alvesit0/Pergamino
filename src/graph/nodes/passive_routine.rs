@@ -2,7 +2,7 @@ use egui::{Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node::{PergaminoNode}, node_behavior::{NodeAction, PergaminoNodeBehavior}, types::DataType};
+use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct PassiveRoutineNode {
@@ -29,7 +29,8 @@ impl PergaminoNodeBehavior for PassiveRoutineNode {
 
 	fn show_input(&mut self, 
 		_pin: &egui_snarl::InPin, 
-		_ui: &mut egui::Ui
+		_ui: &mut egui::Ui,
+		_context: &GraphContext
 	) -> egui_snarl::ui::PinInfo {
 		PinInfo::circle().with_fill(DataType::RegularStatement.color())
 	}
@@ -42,6 +43,7 @@ impl PergaminoNodeBehavior for PassiveRoutineNode {
 		&mut self, 
 		_pin: &egui_snarl::OutPin, 
 		_ui: &mut egui::Ui,
+		_context: &GraphContext
 	) -> egui_snarl::ui::PinInfo {
 		PinInfo::circle().with_fill(DataType::RegularStatement.color())
 	}
@@ -52,7 +54,8 @@ impl PergaminoNodeBehavior for PassiveRoutineNode {
 		_inputs: &[egui_snarl::InPin],
 		_outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
-		_nodes: &[PergaminoNode]
+		_nodes: &[PergaminoNode],
+		_context: &GraphContext
 	) -> NodeAction {
 		let mut _action = NodeAction::None;
 

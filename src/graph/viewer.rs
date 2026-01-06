@@ -1,7 +1,7 @@
 use egui::{Frame, RichText, Ui};
 use egui_snarl::{InPinId, OutPinId, Snarl, ui::{AnyPins, SnarlViewer}};
 
-use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{NodeAction, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}}, ui::theme::PergaminoTheme};
+use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{AddNodeCommand, PendingConnection}, remove_connection::RemoveConnectionCommand, remove_node::RemoveNodeCommand}, invoker::CommandInvoker}, graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}}, io::project::{ProjectSettings, Variable}, ui::theme::PergaminoTheme};
 
 // ' indica lifetime, "a" podría ser cualquier cosa
 // especificar esto cuando se tienen referencias se debe hacer porque si 
@@ -12,7 +12,9 @@ use crate::{commands::{graph::{add_connection::AddConnectionCommand, add_node::{
 // PergaminoViewer provocará que el compilador se queje
 pub struct PergaminoViewer<'a> {
 	pub theme: &'a PergaminoTheme,
-	pub invoker: &'a mut CommandInvoker
+	pub invoker: &'a mut CommandInvoker,
+	pub settings: &'a ProjectSettings,
+	pub variables: &'a [Variable]
 }
 
 impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
@@ -32,8 +34,10 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 		) -> impl egui_snarl::ui::SnarlPin + 'static {
 		self.apply_node_base_style(ui);
 
+		let ctx = self.get_context();
+
 		let node = &mut snarl[pin.id.node];
-		node.show_input(pin, ui)
+		node.show_input(pin, ui, &ctx)
 	}
 	
 	fn outputs(&mut self, node: &PergaminoNode) -> usize {
@@ -48,8 +52,10 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 	) -> impl egui_snarl::ui::SnarlPin + 'static {
 		self.apply_node_base_style(ui);
 
+		let ctx = self.get_context();
+
 		let node = &mut snarl[pin.id.node];
-		node.show_output(pin, ui) // cannot borrow `*snarl` as mutable more than once at a time
+		node.show_output(pin, ui, &ctx) // cannot borrow `*snarl` as mutable more than once at a time
 	}
 
 	fn connect(
@@ -250,6 +256,8 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 	) {
 		self.apply_node_base_style(ui);
 
+		let ctx = self.get_context();
+
 		let other_nodes: Vec<_> = snarl.node_ids()
 			.filter(|(id, _)| *id != node_id)
 			.map(|(_, node)| node.clone())
@@ -258,7 +266,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 
 		let action = {
 			let node = &mut snarl[node_id];
-			node.show_body(node_id, inputs, outputs, ui, &other_nodes)
+			node.show_body(node_id, inputs, outputs, ui, &other_nodes, &ctx)
 		};
 
 		Self::process_action(snarl, action, node_id, self.invoker);
@@ -319,6 +327,13 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 }
 
 impl<'a> PergaminoViewer<'a> {
+	fn get_context(&self) -> GraphContext {
+		GraphContext { 
+			settings: self.settings,
+			variables: self.variables
+		}
+	}
+
 	fn apply_node_base_style(&self, ui: &mut egui::Ui) {
 		// text color only for now lol
 		ui.visuals_mut().override_text_color = Some(self.theme.node_text_color);

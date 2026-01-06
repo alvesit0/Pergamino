@@ -113,7 +113,9 @@ pub fn show(
 
 		let mut viewer = PergaminoViewer { 
 			theme: &theme, 
-			invoker: invoker
+			invoker: invoker,
+		    settings: settings,
+		    variables: variables,
 		};
 		let snarl_id = egui::Id::new("pergamino_graph_id");
 
