@@ -8,7 +8,8 @@ use crate::{commands::command::PergaminoCommand, graph::node::PergaminoNode};
 pub struct CommandInvoker {
 	undo_stack: Vec<Box<dyn PergaminoCommand>>,
 	redo_stack: Vec<Box<dyn PergaminoCommand>>,
-	saved_undo_count: usize
+	saved_undo_count: usize,
+	external_dirty: bool,
 }
 
 impl Default for CommandInvoker {
@@ -16,7 +17,8 @@ impl Default for CommandInvoker {
 		Self { 
 			undo_stack: Vec::default(), 
 			redo_stack: Vec::default(),
-			saved_undo_count: 0
+			saved_undo_count: 0,
+			external_dirty: false,
 		}
 	}
 }
@@ -52,18 +54,20 @@ impl CommandInvoker {
 	// llamar cuando se guarda el archivo con éxito
 	pub fn mark_as_saved(&mut self) {
 		self.saved_undo_count = self.undo_stack.len();
+		self.external_dirty = false;
 	}
 
 	pub fn is_dirty(&self) -> bool {
-		self.undo_stack.len() != self.saved_undo_count
+		(self.undo_stack.len() != self.saved_undo_count) || self.external_dirty
 	}
 
-	// pub fn force_dirty(&mut self) {
-	// 	self.saved_undo_count = usize::MAX;
-	// }
+	pub fn force_dirty(&mut self) {
+		self.external_dirty = true;
+	}
 
 	pub fn reset_saved_state(&mut self) {
 		self.saved_undo_count = self.undo_stack.len();
+		self.external_dirty = false;
 	}
 }
 

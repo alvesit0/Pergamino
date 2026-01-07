@@ -1,4 +1,5 @@
 use egui::Color32;
+
 use enum_dispatch::enum_dispatch;
 use crate::graph::node::PergaminoNode;
 
@@ -19,6 +20,7 @@ pub enum NodeAction {
 	None,
 	Disconnect(egui_snarl::OutPin, egui_snarl::InPin),
 	Connect(egui_snarl::OutPin, egui_snarl::InPin),
+	Update,
 	RemoveSelf
 }
 
@@ -41,7 +43,7 @@ pub trait PergaminoNodeBehavior {
 		pin: &egui_snarl::InPin,
 		ui: &mut egui::Ui,
 		ctx: &GraphContext
-		) -> egui_snarl::ui::PinInfo;
+		) -> (egui_snarl::ui::PinInfo, NodeAction);
 
 	fn outputs(&self) -> usize;
 	fn show_output(
@@ -49,7 +51,7 @@ pub trait PergaminoNodeBehavior {
 		pin: &egui_snarl::OutPin,
 		ui: &mut egui::Ui,
 		ctx: &GraphContext
-	) -> egui_snarl::ui::PinInfo;
+	) -> (egui_snarl::ui::PinInfo, NodeAction);
 
 	fn has_node_menu(&self) -> bool { true }
 	fn has_body(&self) -> bool { true }

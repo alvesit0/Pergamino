@@ -52,8 +52,13 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 
 		let ctx = self.get_context();
 
-		let node = &mut snarl[pin.id.node];
-		node.show_input(pin, ui, &ctx)
+		let node_id = pin.id.node;
+
+		let (pin_info, action) = snarl[node_id].show_input(pin, ui, &ctx);
+
+		Self::process_action(snarl, action, node_id, self.invoker);
+
+		pin_info
 	}
 	
 	fn outputs(&mut self, node: &PergaminoNode) -> usize {
@@ -70,8 +75,13 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 
 		let ctx = self.get_context();
 
-		let node = &mut snarl[pin.id.node];
-		node.show_output(pin, ui, &ctx) // cannot borrow `*snarl` as mutable more than once at a time
+		let node_id = pin.id.node;
+
+		let (pin_info, action) = snarl[node_id].show_output(pin, ui, &ctx);
+
+		Self::process_action(snarl, action, node_id, self.invoker);
+
+		pin_info // cannot borrow `*snarl` as mutable more than once at a time
 	}
 
 	fn connect(
@@ -383,6 +393,9 @@ impl<'a> PergaminoViewer<'a> {
 			NodeAction::Disconnect(from, to) => {
 				let cmd = RemoveConnectionCommand { from: from.id, to: to.id };
 				invoker.execute_command(cmd, snarl);
+			},
+			NodeAction::Update => {
+				invoker.force_dirty();
 			}
 			NodeAction::None => {}
 		}

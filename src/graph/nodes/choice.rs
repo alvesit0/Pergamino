@@ -30,8 +30,11 @@ impl PergaminoNodeBehavior for ChoiceNode {
 		_pin: &egui_snarl::InPin, 
 		_ui: &mut egui::Ui,
 		_context: &GraphContext
-	) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(DataType::RegularStatement.color())
+	) -> (PinInfo, NodeAction) {
+		(
+			PinInfo::circle().with_fill(DataType::RegularStatement.color()),
+			NodeAction::None
+		)
 	}
 
 	fn outputs(&self) -> usize {
@@ -43,7 +46,9 @@ impl PergaminoNodeBehavior for ChoiceNode {
 		pin: &egui_snarl::OutPin, 
 		ui: &mut egui::Ui,
 		ctx: &GraphContext
-	) -> egui_snarl::ui::PinInfo {
+	) -> (PinInfo, NodeAction) {
+		let mut action: NodeAction = NodeAction::None;
+
 		let idx = pin.id.output;
 		let count = self.choices.len();
 		
@@ -60,27 +65,39 @@ impl PergaminoNodeBehavior for ChoiceNode {
 					if ui.button("🗑").on_hover_text("Remove this choice").clicked() {
 						self.choices.remove(idx);
 						removed = true;
+
+						action = NodeAction::Update;
 					}
 
 					if !removed {
 						let text = &mut self.choices[idx];
 						let text_width = ui.available_width() - BUTTON_SIZE - ui.spacing().item_spacing.x;
 						
-						VariableTextEdit::new(text, ctx.variables)
+						let response = VariableTextEdit::new(text, ctx.variables)
 							.singleline()
 							.desired_width(text_width)
 							.show(ui);
+						
+						if response.changed() {
+							action = NodeAction::Update;
+						}
 					}
 				}
 			);
 
 			if removed {
-				return PinInfo::square()
+				return (
+					PinInfo::square()
 					.with_fill(Color32::TRANSPARENT)
-					.with_stroke(egui::Stroke::NONE);
+					.with_stroke(egui::Stroke::NONE),
+					action
+				)
 			}
 			
-			PinInfo::triangle().with_fill(DataType::RegularStatement.color())
+			(
+				PinInfo::triangle().with_fill(DataType::RegularStatement.color()),
+				action
+			)
 
 		} else {
 			ui.add_space(4.0);
@@ -90,12 +107,16 @@ impl PergaminoNodeBehavior for ChoiceNode {
 				Button::new("+ Add Choice")
 			).clicked().then(|| {
 				self.choices.push("New Option".to_string());
+				action = NodeAction::Update;
 			});
 
-			PinInfo::square()
-				.with_fill(Color32::TRANSPARENT)
-				.with_stroke(egui::Stroke::NONE)
-				.with_wire_color(Color32::TRANSPARENT)
+			(
+				PinInfo::square()
+					.with_fill(Color32::TRANSPARENT)
+					.with_stroke(egui::Stroke::NONE)
+					.with_wire_color(Color32::TRANSPARENT),
+				action
+			)
 		}
 	}
 

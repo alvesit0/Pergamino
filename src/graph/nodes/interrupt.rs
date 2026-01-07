@@ -48,8 +48,11 @@ impl PergaminoNodeBehavior for InterruptNode {
 		_pin: &egui_snarl::InPin, 
 		_ui: &mut egui::Ui,
 		_context: &GraphContext
-	) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(DataType::RegularStatement.color())
+	) -> (PinInfo, NodeAction) {
+		(
+			PinInfo::circle().with_fill(DataType::RegularStatement.color()), 
+			NodeAction::None
+		)
 	}
 
 	fn outputs(&self) -> usize {
@@ -61,8 +64,11 @@ impl PergaminoNodeBehavior for InterruptNode {
 		_pin: &egui_snarl::OutPin, 
 		_ui: &mut egui::Ui,
 		_context: &GraphContext
-	) -> egui_snarl::ui::PinInfo {
-		PinInfo::circle().with_fill(DataType::RegularStatement.color())
+	) -> (PinInfo, NodeAction) {
+		(
+			PinInfo::circle().with_fill(DataType::RegularStatement.color()), 
+			NodeAction::None
+		)
 	}
 
 	fn show_body(
