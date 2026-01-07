@@ -5,20 +5,25 @@ use crate::{io::project::{Variable, VariableType}, ui::EditorUiState};
 pub fn show(ctx: &egui::Context, variables: &mut Vec<Variable>, ui_state: &mut EditorUiState) {
 	egui::Modal::new(egui::Id::new("variables_modal"))
 		.show(ctx, |ui| {
-			ui.set_min_width(500.0);
+			ui.set_width(500.0);
 			ui.set_max_height(400.0);
 			ui.heading("Project Variables");
 			ui.separator();
 
+			let available_height = ui.available_height();
+			let footer_height = 80.0;
+			let table_height = (available_height - footer_height).max(50.0);
+
 			TableBuilder::new(ui)
 				.striped(true)
-				.resizable(true)
+				.resizable(false)
 				.cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-				.column(Column::auto()) // Delete button
-				.column(Column::initial(150.0).resizable(true)) // Name
-				.column(Column::initial(100.0).resizable(true)) // Type
-				.column(Column::remainder()) // Value
+				.column(Column::auto()) 
+				.column(Column::initial(200.0).resizable(false))
+				.column(Column::initial(180.0).resizable(false)) 
+				.column(Column::remainder())
 				.min_scrolled_height(0.0)
+				.max_scroll_height(table_height)
 				.header(20.0, |mut header| {
 					header.col(|_| {});
 					header.col(|ui| { ui.strong("Name"); });
@@ -63,7 +68,9 @@ pub fn show(ctx: &egui::Context, variables: &mut Vec<Variable>, ui_state: &mut E
 			}
 
 			ui.separator();
-			ui.horizontal(|ui| {
+
+			let layout = egui::Layout::right_to_left(egui::Align::TOP);
+			ui.with_layout(layout,|ui| {
 				if ui.button("Close").clicked() {
 					ui_state.show_variables_modal = false;
 				}

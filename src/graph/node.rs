@@ -45,9 +45,9 @@ define_node_enum! {
 		// Number(NumberNode),
 		// Add(AddNode),
 		// Complex(ComplexNode),
-		Dialogue(DialogueNode),
-		Interrupt(InterruptNode),
 		PassiveRoutine(PassiveRoutineNode),
+		Interrupt(InterruptNode),
+		Dialogue(DialogueNode),
 		Choice(ChoiceNode)
 
 		// ADD NEW NODES HERE
