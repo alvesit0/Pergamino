@@ -10,7 +10,9 @@ use crate::graph::nodes::{
 	dialogue::DialogueNode, 
 	interrupt::InterruptNode,
 	passive_routine::PassiveRoutineNode,
-	choice::ChoiceNode
+	choice::ChoiceNode,
+	movement::MovementNode,
+	pathfind::PathfindNode
 };
 use crate::graph::types::DataType;
 use crate::io::project::{ProjectSettings, Variable};
