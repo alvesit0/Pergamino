@@ -12,7 +12,8 @@ use crate::graph::nodes::{
 	passive_routine::PassiveRoutineNode,
 	choice::ChoiceNode,
 	movement::MovementNode,
-	wait::WaitNode
+	wait::WaitNode,
+	teleport::TeleportNode
 };
 use crate::graph::types::DataType;
 use crate::io::project::{NodeReference, ProjectSettings, Variable};
@@ -21,7 +22,8 @@ use crate::io::project::{NodeReference, ProjectSettings, Variable};
 pub enum NodeCategory {
 	Logic,
 	Text,
-	Other
+	Movement,
+	Other,
 }
 
 #[allow(dead_code)]

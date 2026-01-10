@@ -2,7 +2,7 @@ use egui::{CollapsingHeader, Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType}, ui::widgets::node_reference_text_edit::NodeReferenceTextEdit};
+use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, NodeCategory, PergaminoNodeBehavior}, types::DataType}, ui::widgets::node_reference_text_edit::NodeReferenceTextEdit};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum MovementDirection {
@@ -182,5 +182,9 @@ impl PergaminoNodeBehavior for MovementNode {
 
 	fn output_type(&self, _index: usize) -> Option<DataType> {
 		Some(DataType::RegularStatement)
+	}
+
+	fn category(&self) -> crate::graph::node_behavior::NodeCategory {
+		NodeCategory::Movement
 	}
 }

@@ -176,6 +176,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 
 		show_category(ui, "Logic", NodeCategory::Logic);
 		show_category(ui, "Text", NodeCategory::Text);
+		show_category(ui, "Movement", NodeCategory::Movement);
 
 		ui.separator();
 
@@ -295,6 +296,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 
 		show_category(ui, "Logic", NodeCategory::Logic);
 		show_category(ui, "Text", NodeCategory::Text);
+		show_category(ui, "Movement", NodeCategory::Movement);
 
 		ui.separator();
 

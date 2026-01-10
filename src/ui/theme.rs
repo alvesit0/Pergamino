@@ -60,7 +60,7 @@ impl PergaminoTheme {
 			.corner_radius(CornerRadius::same(self.node_header_rouding))
 			.inner_margin(Margin::symmetric(6, 10))
 			.shadow(Shadow { 
-				offset: [2, 2], 
+				offset: [8, 8], 
 				blur: 0, 
 				spread: 0, 
 				color: Color32::from_black_alpha(120)
