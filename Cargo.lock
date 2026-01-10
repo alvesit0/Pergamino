@@ -13,6 +13,7 @@ dependencies = [
  "egui_extras",
  "enum_dispatch",
  "env_logger",
+ "image",
  "regex",
  "rfd",
  "serde",

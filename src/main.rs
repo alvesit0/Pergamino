@@ -10,6 +10,23 @@ mod app;
 
 use crate::app::PergaminoApp;
 
+fn load_icon() -> egui::IconData {
+	let (icon_rgba, icon_width, icon_height) = {
+		let image = image::load_from_memory(include_bytes!("../assets/icon.png"))
+			.expect("Failed to load icon")
+			.into_rgba8();
+		let (width, height) = image.dimensions();
+		let rgba = image.into_raw();
+		(rgba, width, height)
+	};
+
+	egui::IconData {
+		rgba: icon_rgba,
+		width: icon_width,
+		height: icon_height,
+	}
+}
+
 fn main() -> eframe::Result {
 
     env_logger::init();
@@ -19,7 +36,8 @@ fn main() -> eframe::Result {
             .with_inner_size([480.0, 320.0])
             .with_decorations(false)
             .with_transparent(true)
-            .with_resizable(true),
+            .with_resizable(true)
+			.with_icon(load_icon()),
         centered: true,
         ..Default::default() // esto es el equivalente a hacer "...defaultOptions" en typescript
     };

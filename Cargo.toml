@@ -17,3 +17,4 @@ rfd = "0.14"
 chrono = { version = "0.4", features = ["serde"] }
 enum_dispatch = "0.3"
 regex = "1.12.2"
+image = { version = "0.25.9", default-features = false, features = ["png"]}

@@ -14,7 +14,8 @@ pub mod widgets;
 pub struct EditorUiState {
 	pub show_settings_modal: bool,
 	pub show_variables_modal: bool,
-	pub show_node_references_modal: bool
+	pub show_node_references_modal: bool,
+	pub show_about_modal: bool,
 }
 
 #[derive(Clone)]

@@ -37,14 +37,20 @@ pub fn show(ctx: &egui::Context, last_project: &Option<PathBuf>) -> Option<AppSt
     };
 
 	let width = 360.0;
-	let height = 260.0;
+	let height = 292.0;
 
 	ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize([width, height].into()));
 
     window_frame::show(ctx, config, |ui| {
         ui.with_layout(egui::Layout::top_down_justified(egui::Align::Center), |ui| {
             ui.add_space(30.0);
-            ui.heading("📜 Pergamino");
+			ui.add(
+				egui::Image::new(egui::include_image!("../../../assets/icon.png"))
+					.max_height(32.0)
+					.fit_to_original_size(1.0)
+			);
+
+            ui.heading("Pergamino");
             ui.add_space(30.0);
 
             if let Some(path) = last_project {

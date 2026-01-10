@@ -6,7 +6,7 @@ use rfd::FileDialog;
 use crate::{commands::invoker::CommandInvoker, graph::{node::{PergaminoNode}, viewer::PergaminoViewer}, io::{self, project::{NodeReference, ProjectSettings, Variable}}, ui::{EditorUiState, theme::PergaminoTheme}};
 
 use super::super::{AppState, window_frame};
-use super::{settings as settings_modal, variables as variables_modal, node_references as node_references_modal};
+use super::{settings as settings_modal, variables as variables_modal, node_references as node_references_modal, about as about_modal};
 
 pub fn start(ctx: &egui::Context) {
 	let width = 1024.0;
@@ -107,6 +107,11 @@ pub fn show(
 
             if ui.button("Undo").clicked() { invoker.undo_command(snarl); }
             if ui.button("Redo").clicked() { invoker.redo_command(snarl); }
+
+			if ui.button("About").clicked() {
+				ui_state.show_about_modal = true;
+				ui.close();
+			}
         });
 
         // ui.separator();
@@ -141,6 +146,10 @@ pub fn show(
 
 	if ui_state.show_node_references_modal {
 		node_references_modal::show(ctx, node_references, ui_state);
+	}
+
+	if ui_state.show_about_modal {
+		about_modal::show(ctx, settings, ui_state);
 	}
 
     _next_state
