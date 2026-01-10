@@ -7,4 +7,7 @@ pub mod choice;
 pub mod movement;
 pub mod teleport;
 
+pub mod conditional;
+pub mod expression;
+
 pub mod wait;

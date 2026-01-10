@@ -13,7 +13,9 @@ use crate::graph::nodes::{
 	choice::ChoiceNode,
 	movement::MovementNode,
 	wait::WaitNode,
-	teleport::TeleportNode
+	teleport::TeleportNode,
+	expression::ExpressionNode,
+	conditional::ConditionalNode,
 };
 use crate::graph::types::DataType;
 use crate::io::project::{NodeReference, ProjectSettings, Variable};

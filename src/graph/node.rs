@@ -9,6 +9,8 @@ use crate::graph::nodes::{
 	passive_routine::PassiveRoutineNode, 
 	wait::WaitNode,
 	teleport::TeleportNode,
+	expression::ExpressionNode,
+	conditional::ConditionalNode
 };
 
 // #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
@@ -60,6 +62,8 @@ define_node_enum! {
 		Move(MovementNode),
 		Teleport(TeleportNode),
 		Wait(WaitNode),
+		Expression(ExpressionNode),
+		Conditional(ConditionalNode)
 
 		// ADD NEW NODES HERE
 	}
