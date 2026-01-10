@@ -28,7 +28,7 @@ pub fn show(ctx: &egui::Context, _settings: &mut ProjectSettings, ui_state: &mut
 				ui.add_space(10.0);
 
 				if ui.link("Source Code on GitHub").clicked() {
-					let _ = ui.ctx().open_url(egui::OpenUrl::new_tab("https://github.com/tu_usuario/pergamino"));
+					let _ = ui.ctx().open_url(egui::OpenUrl::new_tab("https://github.com/alvesit0/Pergamino"));
 				}
 				
 				ui.add_space(4.0);
