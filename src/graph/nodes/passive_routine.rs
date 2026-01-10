@@ -2,7 +2,7 @@ use egui::{Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType};
+use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, NodeCategory, PergaminoNodeBehavior}, types::DataType};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct PassiveRoutineNode {
@@ -95,5 +95,9 @@ impl PergaminoNodeBehavior for PassiveRoutineNode {
 
 	fn input_max_connections(&self,_index:usize) -> usize {
 		0
+	}
+
+	fn category(&self) -> NodeCategory {
+		NodeCategory::Logic
 	}
 }

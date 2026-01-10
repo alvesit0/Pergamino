@@ -4,7 +4,7 @@ use egui::{Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}, types::DataType};
+use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, NodeCategory, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}, types::DataType};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct InterruptNode {
@@ -150,5 +150,9 @@ impl PergaminoNodeBehavior for InterruptNode {
 
 	fn input_max_connections(&self,_index:usize) -> usize {
 		UNLIMITED_CONNECTIONS
+	}
+
+	fn category(&self) -> NodeCategory {
+		NodeCategory::Logic
 	}
 }

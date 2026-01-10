@@ -3,8 +3,8 @@ use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
 use crate::{
-	graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType},
-	ui::widgets::{variable_text_edit::VariableTextEdit, bbcode_text_edit::BBCodeTextEdit}
+	graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, NodeCategory, PergaminoNodeBehavior}, types::DataType},
+	ui::widgets::{bbcode_text_edit::BBCodeTextEdit, variable_text_edit::VariableTextEdit}
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -123,6 +123,10 @@ impl PergaminoNodeBehavior for DialogueNode {
 
 	fn output_type(&self, _index: usize) -> Option<DataType> {
 		Some(DataType::RegularStatement)
+	}
+
+	fn category(&self) -> NodeCategory {
+		NodeCategory::Text
 	}
 }
 

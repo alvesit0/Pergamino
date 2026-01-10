@@ -17,6 +17,13 @@ use crate::graph::nodes::{
 use crate::graph::types::DataType;
 use crate::io::project::{NodeReference, ProjectSettings, Variable};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NodeCategory {
+	Logic,
+	Text,
+	Other
+}
+
 #[allow(dead_code)]
 pub enum NodeAction {
 	None,
@@ -102,5 +109,9 @@ pub trait PergaminoNodeBehavior {
 
 	fn output_max_connections(&self, _index: usize) -> usize {
 		1
+	}
+
+	fn category(&self) -> NodeCategory {
+		NodeCategory::Other
 	}
 }

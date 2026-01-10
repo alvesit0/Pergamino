@@ -10,10 +10,7 @@ use crate::{commands::{graph::{
 	graph::{
 		node::PergaminoNode, 
 		node_behavior::{
-			GraphContext, 
-			NodeAction, 
-			PergaminoNodeBehavior, 
-			UNLIMITED_CONNECTIONS
+			GraphContext, NodeAction, NodeCategory, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS
 		}}, 
 		io::project::{NodeReference, ProjectSettings, Variable}, 
 		ui::theme::PergaminoTheme
@@ -145,10 +142,11 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			.map(|(_, n)| n.clone())
 			.collect();
 
-		for node in PergaminoNode::prototypes() {
+		let prototypes = PergaminoNode::prototypes();
+
+		let mut draw_node_btn = |ui: &mut egui::Ui, node: &PergaminoNode| {
 			if ui.button(node.title()).clicked() {
 				let mut new_node = node.clone();
-
 				new_node.on_create(&current_nodes);
 
 				let cmd = AddNodeCommand {
@@ -160,7 +158,28 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 				self.invoker.execute_command(cmd, snarl);
 				ui.close();
 			}
-		}
+		};
+
+		let mut show_category = |ui: &mut egui::Ui, name: &str, category: NodeCategory| {
+			let nodes: Vec<&PergaminoNode> = prototypes.iter()
+				.filter(|n| n.category() == category)
+				.collect();
+
+			if !nodes.is_empty() {
+				ui.menu_button(name, |ui| {
+					for node in nodes {
+						draw_node_btn(ui, node);
+					}
+				});
+			}
+		};
+
+		show_category(ui, "Logic", NodeCategory::Logic);
+		show_category(ui, "Text", NodeCategory::Text);
+
+		ui.separator();
+
+		show_category(ui, "Other", NodeCategory::Other);
 	}
 
 	fn show_dropped_wire_menu(
@@ -171,6 +190,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			snarl: &mut Snarl<PergaminoNode>,
 		) {
 		ui.label("Connect to...");
+		ui.set_min_width(80.0);
 		ui.separator();
 
 		// obtener pin de salida, pin de entrada y tipo de pin de salida
@@ -203,9 +223,11 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			.map(|(_, n)| n.clone())
 			.collect();
 
-		for prototype in PergaminoNode::prototypes() {
-			// buscamos un pin compatible con el prototipo
-			let target_pin_index = if src_out_id.is_some() {
+		let prototypes = PergaminoNode::prototypes();
+
+		// helper para comprobar compatibilidad
+		let get_target_idx = |prototype: &PergaminoNode| -> Option<usize> {
+			if src_out_id.is_some() {
 				// si arrastro SALIDA, busco ENTRADA compatible en el nuevo nodo
 				(0..prototype.inputs()).find(|&i| {
 					prototype.input_type(i).map_or(false, |t| src_type.is_compatible_with(&t))
@@ -215,42 +237,68 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 				(0..prototype.outputs()).find(|&i| {
 					prototype.output_type(i).map_or(false, |t| src_type.is_compatible_with(&t))
 				})
-			};
-
-			// si encontramos compatibilidad, pintamos el botón
-			if let Some(idx) = target_pin_index {
-				if ui.button(prototype.title()).clicked() {
-					let mut new_node = prototype.clone();
-					new_node.on_create(&current_nodes);
-
-					self.enforce_pin_limits(snarl, src_out_id, src_in_id);
-
-					let connection_info = if let Some(from_id) = src_out_id {
-						Some(PendingConnection::FromOutput { 
-							source: from_id, 
-							target_input_idx: idx 
-						})
-					} else if let Some(to_id) = src_in_id {
-						Some(PendingConnection::FromInput { 
-							source: to_id, 
-							target_output_idx: idx
-						})
-					} else {
-						None
-					};
-
-					let cmd = AddNodeCommand {
-						prototype: new_node,
-						pos,
-						initial_connection: connection_info,
-						last_created_id: None
-					};
-
-					self.invoker.execute_command(cmd, snarl);
-					ui.close();
-				}
 			}
-		}
+		};
+
+		// helper para dibujar boton y crear nodo
+		let mut draw_node_btn = |ui: &mut egui::Ui, prototype: &PergaminoNode, idx: usize| {
+			if ui.button(prototype.title()).clicked() {
+				let mut new_node = prototype.clone();
+				new_node.on_create(&current_nodes);
+
+				self.enforce_pin_limits(snarl, src_out_id, src_in_id);
+
+				let connection_info = if let Some(from_id) = src_out_id {
+					Some(PendingConnection::FromOutput { 
+						source: from_id, 
+						target_input_idx: idx 
+					})
+				} else if let Some(to_id) = src_in_id {
+					Some(PendingConnection::FromInput { 
+						source: to_id, 
+						target_output_idx: idx
+					})
+				} else {
+					None
+				};
+
+				let cmd = AddNodeCommand {
+					prototype: new_node,
+					pos,
+					initial_connection: connection_info,
+					last_created_id: None
+				};
+
+				self.invoker.execute_command(cmd, snarl);
+				ui.close();
+			}
+		};
+
+		let mut show_category = |
+				ui: &mut egui::Ui, 
+				name: &str, 
+				category: NodeCategory
+			| {
+			let valid_nodes: Vec<(&PergaminoNode, usize)> = prototypes.iter()
+				.filter(|n| n.category() == category)
+				.filter_map(|n| get_target_idx(n).map(|idx| (n, idx)))
+				.collect();
+
+			if !valid_nodes.is_empty() {
+				ui.menu_button(name, |ui| {
+					for (node, idx) in valid_nodes {
+						draw_node_btn(ui, node, idx);
+					}
+				});
+			}
+		};
+
+		show_category(ui, "Logic", NodeCategory::Logic);
+		show_category(ui, "Text", NodeCategory::Text);
+
+		ui.separator();
+
+		show_category(ui, "Other", NodeCategory::Other);
 	}
 
 	fn show_node_menu(

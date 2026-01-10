@@ -2,7 +2,7 @@ use egui::{Button, Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType}, ui::widgets::variable_text_edit::VariableTextEdit};
+use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, NodeCategory, PergaminoNodeBehavior}, types::DataType}, ui::widgets::variable_text_edit::VariableTextEdit};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ChoiceNode {
@@ -147,5 +147,9 @@ impl PergaminoNodeBehavior for ChoiceNode {
 		} else {
 			None
 		}
+	}
+
+	fn category(&self) -> NodeCategory {
+		NodeCategory::Text
 	}
 }
