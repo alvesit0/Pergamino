@@ -44,6 +44,19 @@ impl Default for Variable {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct NodeReference {
+	pub name: String
+}
+
+impl Default for NodeReference {
+	fn default() -> Self {
+		Self {
+			name: "new_node".to_owned()
+		}
+	}
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ProjectSettings {
 	pub language: String,
 	pub max_dialogue_chars: usize
@@ -65,7 +78,9 @@ pub struct ProjectMetadata {
 	#[serde(default)]
 	pub settings: ProjectSettings,
 	#[serde(default)]
-	pub variables: Vec<Variable>
+	pub variables: Vec<Variable>,
+	#[serde(default)]
+	pub node_references: Vec<NodeReference>
 }
 
 impl Default for ProjectMetadata {
@@ -74,7 +89,8 @@ impl Default for ProjectMetadata {
 			project_name: "Untitled".to_owned(), 
 			created_at: chrono::Local::now().to_rfc3339(),
 			settings: ProjectSettings::default(),
-			variables: Vec::new()
+			variables: Vec::new(),
+			node_references: Vec::new()
 		}
 	}
 }

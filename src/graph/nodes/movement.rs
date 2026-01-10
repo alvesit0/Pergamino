@@ -1,18 +1,33 @@
-use egui::{Color32};
+use egui::{CollapsingHeader, Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
 
-use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType};
+use crate::{graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior}, types::DataType}, ui::widgets::node_reference_text_edit::NodeReferenceTextEdit};
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub enum MovementDirection {
+	UpLeft, Up, UpRight,
+	Left, Right,
+	DownLeft, Down, DownRight
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct MovementNode {
 	pub reference_id: String,
+	pub direction: MovementDirection,
+	#[serde(default)]
+	pub pathfind: bool,
+	#[serde(default)]
+	pub wait_till_end: bool,
 }
 
 impl Default for MovementNode {
 	fn default() -> Self {
 		Self { 
-			reference_id: Default::default()
+			reference_id: Default::default(),
+			direction: MovementDirection::Down,
+			pathfind: true,
+			wait_till_end: true,
 		}
 	}
 }
@@ -64,46 +79,76 @@ impl PergaminoNodeBehavior for MovementNode {
 		_outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
 		_nodes: &[PergaminoNode],
-		_context: &GraphContext
+		ctx: &GraphContext
 	) -> NodeAction {
-		let mut _action = NodeAction::None;
+		let mut action = NodeAction::None;
 
 		let btn_size = egui::vec2(30.0, 30.0);
 
 		ui.vertical(|ui| {
 			ui.add_space(8.0);
-			ui.set_max_width(160.0);
-			ui.horizontal(|ui| {
+			ui.set_max_width(94.0);
+			ui.vertical(|ui| {
 				ui.vertical_centered(|ui| {
-					ui.add(egui::TextEdit::singleline(&mut self.reference_id));
+					// ui.add(egui::TextEdit::singleline(&mut self.reference_id).hint_text("Node ref..."));
+					if NodeReferenceTextEdit::new(&mut self.reference_id, ctx.node_references)
+						.desired_width(94.0)
+						.show(ui)
+						.changed() {
+						action = NodeAction::Update;
+					}
 				});
 
 				ui.add_space(8.0);
 
+				let mut dir_btn = |ui: &mut egui::Ui, label: &str, dir: MovementDirection| {
+					let is_selected = self.direction == dir;
+					if ui.add_sized(btn_size, egui::Button::new(label).selected(is_selected)).clicked() {
+						if dir != self.direction {
+							action = NodeAction::Update;
+						}
+						self.direction = dir;
+					}
+				};
+
 				egui::Grid::new("movement_grid")
 					.spacing(egui::vec2(2.0, 2.0))
+					.min_col_width(0.0)
 					.show(ui, |ui| {
 
-					if ui.add_sized(btn_size, egui::Button::new("↖")).clicked() {}
-					if ui.add_sized(btn_size, egui::Button::new("⬆")).clicked() {}
-					if ui.add_sized(btn_size, egui::Button::new("↗")).clicked() {}
+					dir_btn(ui, "↖", MovementDirection::UpLeft);
+					dir_btn(ui, "⬆", MovementDirection::Up);
+					dir_btn(ui, "↗", MovementDirection::UpRight);
 
 					ui.end_row();
 
-					if ui.add_sized(btn_size, egui::Button::new("⬅")).clicked() {}
+					dir_btn(ui, "⬅", MovementDirection::Left);
 					ui.allocate_space(btn_size);
-					if ui.add_sized(btn_size, egui::Button::new("➡")).clicked() {}
+					dir_btn(ui, "➡", MovementDirection::Right);
 
 					ui.end_row();
 
-					if ui.add_sized(btn_size, egui::Button::new("↙")).clicked() {}
-					if ui.add_sized(btn_size, egui::Button::new("⬇")).clicked() {}
-					if ui.add_sized(btn_size, egui::Button::new("↘")).clicked() {}
-				})
+					dir_btn(ui, "↙", MovementDirection::DownLeft);
+					dir_btn(ui, "⬇", MovementDirection::Down);
+					dir_btn(ui, "↘", MovementDirection::DownRight);
+				});
+
+				ui.add_space(8.0);
+
+				CollapsingHeader::new("Settings")
+				.default_open(false)
+				.show(ui, |ui| {
+					if ui.checkbox(&mut self.pathfind, "Pathfind").changed() {
+						action = NodeAction::Update;
+					}
+					if ui.checkbox(&mut self.wait_till_end, "Wait till end").changed() {
+						action = NodeAction::Update;
+					}
+				});
 			});
 		});
 
-		_action
+		action
 	}
 
 	fn accent_color(&self) -> Color32 {

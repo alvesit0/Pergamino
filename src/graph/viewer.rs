@@ -15,7 +15,7 @@ use crate::{commands::{graph::{
 			PergaminoNodeBehavior, 
 			UNLIMITED_CONNECTIONS
 		}}, 
-		io::project::{ProjectSettings, Variable}, 
+		io::project::{NodeReference, ProjectSettings, Variable}, 
 		ui::theme::PergaminoTheme
 	};
 
@@ -30,7 +30,8 @@ pub struct PergaminoViewer<'a> {
 	pub theme: &'a PergaminoTheme,
 	pub invoker: &'a mut CommandInvoker,
 	pub settings: &'a ProjectSettings,
-	pub variables: &'a [Variable]
+	pub variables: &'a [Variable],
+	pub node_references: &'a [NodeReference]
 }
 
 impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
@@ -356,7 +357,8 @@ impl<'a> PergaminoViewer<'a> {
 	fn get_context(&'_ self) -> GraphContext<'_> {
 		GraphContext { 
 			settings: self.settings,
-			variables: self.variables
+			variables: self.variables,
+			node_references: self.node_references
 		}
 	}
 

@@ -12,10 +12,9 @@ use crate::graph::nodes::{
 	passive_routine::PassiveRoutineNode,
 	choice::ChoiceNode,
 	movement::MovementNode,
-	pathfind::PathfindNode
 };
 use crate::graph::types::DataType;
-use crate::io::project::{ProjectSettings, Variable};
+use crate::io::project::{NodeReference, ProjectSettings, Variable};
 
 #[allow(dead_code)]
 pub enum NodeAction {
@@ -28,7 +27,8 @@ pub enum NodeAction {
 
 pub struct GraphContext<'a> {
 	pub settings: &'a ProjectSettings,
-	pub variables: &'a [Variable]
+	pub variables: &'a [Variable],
+	pub node_references: &'a [NodeReference]
 }
 
 pub const UNLIMITED_CONNECTIONS: usize = usize::MAX;

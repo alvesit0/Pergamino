@@ -57,6 +57,7 @@ impl eframe::App for PergaminoApp {
 				invoker, 
 				settings, 
 				variables, 
+				node_references,
 				ui_state } => {
                 ui::editor::editor::show(
 					ctx, 
@@ -66,6 +67,7 @@ impl eframe::App for PergaminoApp {
 					invoker,
 					settings,
 					variables,
+					node_references,
 					ui_state
 				)
             }

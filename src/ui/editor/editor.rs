@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use eframe::egui;
 use egui_snarl::ui::{SnarlStyle};
 use rfd::FileDialog;
-use crate::{commands::invoker::CommandInvoker, graph::{node::PergaminoNode, viewer::PergaminoViewer}, io::{self, project::{ProjectSettings, Variable}}, ui::{EditorUiState, theme::PergaminoTheme}};
+use crate::{commands::invoker::CommandInvoker, graph::{node::{PergaminoNode}, viewer::PergaminoViewer}, io::{self, project::{NodeReference, ProjectSettings, Variable}}, ui::{EditorUiState, theme::PergaminoTheme}};
 
 use super::super::{AppState, window_frame};
-use super::{settings as settings_modal, variables as variables_modal};
+use super::{settings as settings_modal, variables as variables_modal, node_references as node_references_modal};
 
 pub fn start(ctx: &egui::Context) {
 	let width = 1024.0;
@@ -34,6 +34,7 @@ pub fn show(
 	invoker: &mut CommandInvoker,
 	settings: &mut ProjectSettings,
 	variables: &mut Vec<Variable>,
+	node_references: &mut Vec<NodeReference>,
 	ui_state: &mut EditorUiState
 ) -> Option<AppState> {
     let mut _next_state = None;
@@ -48,14 +49,14 @@ pub fn show(
     };
 
 	if ctx.input_mut(|i| i.consume_key(egui::Modifiers::CTRL, egui::Key::S)) {
-		save_project(file_path, snarl, project_name, invoker, settings, variables);
+		save_project(file_path, snarl, project_name, invoker, settings, variables, node_references);
 	}
 
     window_frame::show(ctx, config, |ui| {
         egui::MenuBar::new().ui(ui, |ui| {
             ui.menu_button("File", |io_menu| {
                 if io_menu.button("Save").clicked() {
-					save_project(file_path, snarl, project_name, invoker, settings, variables);
+					save_project(file_path, snarl, project_name, invoker, settings, variables, node_references);
 					io_menu.close();
 				}
 
@@ -71,7 +72,7 @@ pub fn show(
 							*project_name = stem.to_string_lossy().to_string();
 						}
 
-						if let Err(e) = io::export::save_to_file(&path, snarl, project_name, settings, variables) {
+						if let Err(e) = io::export::save_to_file(&path, snarl, project_name, settings, variables, node_references) {
 							eprintln!("Export error: {}", e);
 						} else {
 							// actualizar ruta si el path es el mismo
@@ -93,8 +94,13 @@ pub fn show(
 					ui_state.show_settings_modal = true;
 					ui.close();
 				}
+				ui.separator();
 				if ui.button("Variables").clicked() {
 					ui_state.show_variables_modal = true;
+					ui.close();
+				}
+				if ui.button("Node References").clicked() {
+					ui_state.show_node_references_modal = true;
 					ui.close();
 				}
 			});
@@ -116,6 +122,7 @@ pub fn show(
 			invoker: invoker,
 		    settings: settings,
 		    variables: variables,
+			node_references: node_references
 		};
 		let snarl_id = egui::Id::new("pergamino_graph_id");
 
@@ -132,6 +139,10 @@ pub fn show(
 		variables_modal::show(ctx, variables, ui_state);
 	}
 
+	if ui_state.show_node_references_modal {
+		node_references_modal::show(ctx, node_references, ui_state);
+	}
+
     _next_state
 }
 
@@ -141,7 +152,8 @@ pub fn save_project(
 	project_name: &mut String, 
 	invoker: &mut CommandInvoker,
 	settings: &ProjectSettings,
-	variables: &Vec<Variable>
+	variables: &Vec<Variable>,
+	node_references: &Vec<NodeReference>
 ) {
 	let path_option = if let Some(p) = file_path {
 		Some(p.clone())
@@ -160,7 +172,7 @@ pub fn save_project(
 			}
 		}
 
-		if let Err(e) = io::export::save_to_file(&path, snarl, project_name, settings, variables) {
+		if let Err(e) = io::export::save_to_file(&path, snarl, project_name, settings, variables, node_references) {
 			eprintln!("Save error: {}", e);
 		} else {
 			// actualizar ruta si el path es el mismo

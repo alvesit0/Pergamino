@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use egui_snarl::Snarl;
 
-use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode, io::project::{ProjectSettings, Variable}};
+use crate::{commands::invoker::CommandInvoker, graph::node::PergaminoNode, io::project::{NodeReference, ProjectSettings, Variable}};
 
 pub mod welcome;
 pub mod editor;
@@ -13,7 +13,8 @@ pub mod widgets;
 #[derive(Clone, Default)]
 pub struct EditorUiState {
 	pub show_settings_modal: bool,
-	pub show_variables_modal: bool
+	pub show_variables_modal: bool,
+	pub show_node_references_modal: bool
 }
 
 #[derive(Clone)]
@@ -30,6 +31,7 @@ pub enum AppState {
 
 		settings: ProjectSettings,
 		variables: Vec<Variable>,
+		node_references: Vec<NodeReference>,
 
 		ui_state: EditorUiState
 	}

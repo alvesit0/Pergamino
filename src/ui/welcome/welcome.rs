@@ -66,6 +66,7 @@ pub fn show(ctx: &egui::Context, last_project: &Option<PathBuf>) -> Option<AppSt
 										invoker,
 							            settings: project.meta.settings,
 							            variables: project.meta.variables,
+										node_references: project.meta.node_references,
 							            ui_state: EditorUiState::default(),
 									}) 
 								},
@@ -94,6 +95,7 @@ pub fn show(ctx: &egui::Context, last_project: &Option<PathBuf>) -> Option<AppSt
 								invoker,
 						        settings: project.meta.settings,
 							    variables: project.meta.variables,
+								node_references: project.meta.node_references,
 							    ui_state: EditorUiState::default(),
 							})
 						},

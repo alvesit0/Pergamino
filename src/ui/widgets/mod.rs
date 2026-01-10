@@ -1,2 +1,3 @@
 pub mod variable_text_edit;
 pub mod bbcode_text_edit;
+pub mod node_reference_text_edit;

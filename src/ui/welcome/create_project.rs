@@ -40,6 +40,7 @@ pub fn show(ctx: &egui::Context, temp_name: &mut String) -> Option<AppState> {
 							invoker: CommandInvoker::default(),
                             settings: ProjectSettings::default(),
                             variables: Vec::new(),
+							node_references: Vec::new(),
                             ui_state: EditorUiState::default(),
 						});
                     }

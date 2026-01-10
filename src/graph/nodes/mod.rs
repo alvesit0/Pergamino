@@ -4,4 +4,3 @@ pub mod passive_routine;
 pub mod choice;
 
 pub mod movement;
-pub mod pathfind;
