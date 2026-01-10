@@ -6,7 +6,7 @@ use crate::graph::nodes::{
 	dialogue::DialogueNode, 
 	interrupt::InterruptNode, 
 	movement::MovementNode, 
-	passive_routine::PassiveRoutineNode
+	passive_routine::PassiveRoutineNode, wait::WaitNode
 };
 
 // #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
@@ -55,7 +55,8 @@ define_node_enum! {
 		Interrupt(InterruptNode),
 		Dialogue(DialogueNode),
 		Choice(ChoiceNode),
-		Move(MovementNode)
+		Move(MovementNode),
+		Wait(WaitNode)
 
 		// ADD NEW NODES HERE
 	}

@@ -12,6 +12,7 @@ use crate::graph::nodes::{
 	passive_routine::PassiveRoutineNode,
 	choice::ChoiceNode,
 	movement::MovementNode,
+	wait::WaitNode
 };
 use crate::graph::types::DataType;
 use crate::io::project::{NodeReference, ProjectSettings, Variable};

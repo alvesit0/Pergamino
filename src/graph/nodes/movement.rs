@@ -16,6 +16,8 @@ pub struct MovementNode {
 	pub reference_id: String,
 	pub direction: MovementDirection,
 	#[serde(default)]
+	pub amount: f32,
+	#[serde(default)]
 	pub pathfind: bool,
 	#[serde(default)]
 	pub wait_till_end: bool,
@@ -26,6 +28,7 @@ impl Default for MovementNode {
 		Self { 
 			reference_id: Default::default(),
 			direction: MovementDirection::Down,
+			amount: 1.0,
 			pathfind: true,
 			wait_till_end: true,
 		}
@@ -99,7 +102,25 @@ impl PergaminoNodeBehavior for MovementNode {
 					}
 				});
 
-				ui.add_space(8.0);
+				ui.add_space(4.0);
+
+				ui.horizontal(|ui| {
+					ui.centered_and_justified(|ui| {
+						let response = ui.add(
+							egui::DragValue::new(&mut self.amount)
+							.speed(0.05)
+						);
+
+						if response.changed() {
+							if self.amount < 0.0 {
+								self.amount = 0.0;
+							}
+							action = NodeAction::Update;
+						}
+					});
+				});
+
+				ui.add_space(4.0);
 
 				let mut dir_btn = |ui: &mut egui::Ui, label: &str, dir: MovementDirection| {
 					let is_selected = self.direction == dir;

@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use egui::{Color32};
 use egui_snarl::{ui::PinInfo};
 use serde::{Serialize, Deserialize};
@@ -7,41 +5,25 @@ use serde::{Serialize, Deserialize};
 use crate::graph::{node::PergaminoNode, node_behavior::{GraphContext, NodeAction, PergaminoNodeBehavior, UNLIMITED_CONNECTIONS}, types::DataType};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct InterruptNode {
-	pub index: i16,
+pub struct WaitNode {
+	pub amount: f32,
 }
 
-impl Default for InterruptNode {
+impl Default for WaitNode {
 	fn default() -> Self {
 		Self { 
-			index: Default::default() 
+			amount: 1.0
 		}
 	}
 }
 
-impl PergaminoNodeBehavior for InterruptNode {
+impl PergaminoNodeBehavior for WaitNode {
 	fn title(&self) -> String {
-		"Interrupt".to_owned()
-	}
-
-	fn on_create(&mut self, nodes: &[PergaminoNode]) {
-		let occupied: HashSet<i16> = nodes.iter()
-			.filter_map(|n| match n {
-				PergaminoNode::Interrupt(i) => Some(i.index),
-				_ => None
-			})
-			.collect();
-		
-		for i in 1..=99 {
-			if !occupied.contains(&i) {
-				self.index = i;
-				return;
-			}
-		}
+		"Wait".to_owned()
 	}
 
 	fn inputs(&self) -> usize {
-		0
+		1
 	}
 
 	fn show_input(&mut self, 
@@ -77,49 +59,28 @@ impl PergaminoNodeBehavior for InterruptNode {
 		_inputs: &[egui_snarl::InPin],
 		_outputs: &[egui_snarl::OutPin],
 		ui: &mut egui::Ui,
-		nodes: &[PergaminoNode],
+		_nodes: &[PergaminoNode],
 		_context: &GraphContext
 	) -> NodeAction {
 		let mut action = NodeAction::None;
-
-		let occupied_indices: HashSet<i16> = nodes.iter()
-			.filter_map(|node| {
-				match node {
-					PergaminoNode::Interrupt(n) => Some(n.index),
-					_ => None
-				}
-			})
-			.collect();
 
 		ui.vertical(|ui| {
 			ui.set_min_width(80.0);
 			ui.add_space(8.0);
 			ui.centered_and_justified(|ui| {
-				let valid_range = 1..=99;
-				let mut desired_value = self.index;
+				let valid_range = 0..=999;
 
 				let response = ui.add(
-					egui::DragValue::new(&mut desired_value)
-					.speed(1.0)
+					egui::DragValue::new(&mut self.amount)
+					.speed(0.1)
 					.range(valid_range.clone())
 				);
 
 				if response.changed() {
-					let direction = if desired_value > self.index { 1 } else { -1 };
-					let mut candidate = desired_value;
-
-					while occupied_indices.contains(&candidate) {
-						candidate += direction;
-						if !valid_range.contains(&candidate) {
-							candidate = self.index;
-							break;
-						}
+					if self.amount < 0.0 {
+						self.amount = 0.0;
 					}
-
-					if valid_range.contains(&candidate) && !occupied_indices.contains(&candidate) {
-						self.index = candidate;
-						action = NodeAction::Update;
-					}
+					action = NodeAction::Update;
 				}
 			})
 		});
@@ -128,7 +89,7 @@ impl PergaminoNodeBehavior for InterruptNode {
 	}
 
 	fn accent_color(&self) -> Color32 {
-		Color32::from_rgb(233, 30, 99)
+		Color32::from_rgb(150, 145, 4)
 	}
 
 	fn input_type(&self, _index: usize) -> Option<DataType> {
