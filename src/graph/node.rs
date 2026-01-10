@@ -2,15 +2,7 @@ use enum_dispatch::enum_dispatch;
 use serde::{Serialize, Deserialize};
 
 use crate::graph::nodes::{
-	choice::ChoiceNode, 
-	dialogue::DialogueNode, 
-	interrupt::InterruptNode, 
-	movement::MovementNode, 
-	passive_routine::PassiveRoutineNode, 
-	wait::WaitNode,
-	teleport::TeleportNode,
-	expression::ExpressionNode,
-	conditional::ConditionalNode
+	animation::AnimationNode, change_level::ChangeLevelNode, choice::ChoiceNode, conditional::ConditionalNode, cutscene_toggle::CutsceneToggleNode, dialogue::DialogueNode, expression::ExpressionNode, interrupt::InterruptNode, movement::MovementNode, passive_routine::PassiveRoutineNode, teleport::TeleportNode, wait::WaitNode
 };
 
 // #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
@@ -63,7 +55,10 @@ define_node_enum! {
 		Teleport(TeleportNode),
 		Wait(WaitNode),
 		Expression(ExpressionNode),
-		Conditional(ConditionalNode)
+		Conditional(ConditionalNode),
+		Animation(AnimationNode),
+		CutsceneToggle(CutsceneToggleNode),
+		ChangeLevel(ChangeLevelNode),
 
 		// ADD NEW NODES HERE
 	}

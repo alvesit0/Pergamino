@@ -16,6 +16,9 @@ use crate::graph::nodes::{
 	teleport::TeleportNode,
 	expression::ExpressionNode,
 	conditional::ConditionalNode,
+	cutscene_toggle::CutsceneToggleNode,
+	animation::AnimationNode,
+	change_level::ChangeLevelNode,
 };
 use crate::graph::types::DataType;
 use crate::io::project::{NodeReference, ProjectSettings, Variable};

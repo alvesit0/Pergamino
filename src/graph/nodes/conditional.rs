@@ -45,8 +45,8 @@ impl PergaminoNodeBehavior for ConditionalNode {
 	}
 
 	fn show_output(
-		&mut self, 
-		pin: &egui_snarl::OutPin, 
+		&mut self,
+		pin: &egui_snarl::OutPin,
 		ui: &mut egui::Ui,
 		_ctx: &GraphContext
 	) -> (PinInfo, NodeAction) {
