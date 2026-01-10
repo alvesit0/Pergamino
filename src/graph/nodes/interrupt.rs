@@ -153,6 +153,6 @@ impl PergaminoNodeBehavior for InterruptNode {
 	}
 
 	fn category(&self) -> NodeCategory {
-		NodeCategory::Logic
+		NodeCategory::Routine
 	}
 }

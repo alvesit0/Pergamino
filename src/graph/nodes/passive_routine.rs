@@ -98,6 +98,10 @@ impl PergaminoNodeBehavior for PassiveRoutineNode {
 	}
 
 	fn category(&self) -> NodeCategory {
-		NodeCategory::Logic
+		NodeCategory::Routine
+	}
+
+	fn is_unique(&self) -> bool {
+		true
 	}
 }

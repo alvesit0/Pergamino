@@ -160,9 +160,17 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			}
 		};
 
+		let is_creatable = |node: &PergaminoNode| -> bool {
+			if !node.is_unique() {
+				return true;
+			}
+			!current_nodes.iter().any(|n| n.title() == node.title())
+		};
+
 		let mut show_category = |ui: &mut egui::Ui, name: &str, category: NodeCategory| {
 			let nodes: Vec<&PergaminoNode> = prototypes.iter()
 				.filter(|n| n.category() == category)
+				.filter(|n| is_creatable(n))
 				.collect();
 
 			if !nodes.is_empty() {
@@ -174,9 +182,10 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			}
 		};
 
-		show_category(ui, "Logic", NodeCategory::Logic);
 		show_category(ui, "Text", NodeCategory::Text);
+		show_category(ui, "Logic", NodeCategory::Logic);
 		show_category(ui, "Movement", NodeCategory::Movement);
+		show_category(ui, "Routine", NodeCategory::Routine);
 
 		ui.separator();
 
@@ -241,6 +250,13 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			}
 		};
 
+		let is_creatable = |node: &PergaminoNode| -> bool {
+			if !node.is_unique() {
+				return true;
+			}
+			!current_nodes.iter().any(|n| n.title() == node.title())
+		};
+
 		// helper para dibujar boton y crear nodo
 		let mut draw_node_btn = |ui: &mut egui::Ui, prototype: &PergaminoNode, idx: usize| {
 			if ui.button(prototype.title()).clicked() {
@@ -282,6 +298,7 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			| {
 			let valid_nodes: Vec<(&PergaminoNode, usize)> = prototypes.iter()
 				.filter(|n| n.category() == category)
+				.filter(|n| is_creatable(n))
 				.filter_map(|n| get_target_idx(n).map(|idx| (n, idx)))
 				.collect();
 
@@ -294,9 +311,10 @@ impl<'a> SnarlViewer<PergaminoNode> for PergaminoViewer<'a> {
 			}
 		};
 
-		show_category(ui, "Logic", NodeCategory::Logic);
 		show_category(ui, "Text", NodeCategory::Text);
+		show_category(ui, "Logic", NodeCategory::Logic);
 		show_category(ui, "Movement", NodeCategory::Movement);
+		show_category(ui, "Routine", NodeCategory::Routine);
 
 		ui.separator();
 

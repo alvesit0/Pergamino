@@ -20,9 +20,10 @@ use crate::io::project::{NodeReference, ProjectSettings, Variable};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NodeCategory {
-	Logic,
+	Routine,
 	Text,
 	Movement,
+	Logic,
 	Other,
 }
 
@@ -115,5 +116,9 @@ pub trait PergaminoNodeBehavior {
 
 	fn category(&self) -> NodeCategory {
 		NodeCategory::Other
+	}
+
+	fn is_unique(&self) -> bool {
+		false
 	}
 }
