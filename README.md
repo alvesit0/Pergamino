@@ -1,7 +1,7 @@
 # Pergamino 📜✨
-![Pergamino preview image](assets/readme_preview.png)
-
 **Pergamino** is a blazing-fast, lightweight, node-based Dialogue and Event Editor built entirely in Rust. 
+
+![Pergamino preview image](assets/readme_preview.png)
 
 Designed specifically for game developers and used for my own personal projects, it allows you to visually construct complex branching narratives, logic gates, and game events. The tool exports your graph into clean, parseable JSON files, making it incredibly easy to integrate with any game engine (Godot, Unity, Unreal, or custom frameworks) via a simple interpreter.
 
